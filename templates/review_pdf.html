@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>RoboResume - Final PDF Review</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        html,
+        body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            /* Prevent double scrollbars */
+        }
+
+        .page-container {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .header {
+            flex-shrink: 0;
+            /* Prevent header from shrinking */
+        }
+
+        .pdf-viewer {
+            flex-grow: 1;
+            /* Allow viewer to take up all remaining space */
+            border: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="page-container">
+        <header class="header bg-light border-bottom p-3">
+            <div class="container-fluid d-flex justify-content-between align-items-center">
+                <div>
+                    <h4 class="mb-0">Final PDF Review</h4>
+                    <small class="text-muted">Review the generated document below.</small>
+                </div>
+                <div>
+                    <a href="{{ url_for('review_tailoring', session_id=session_id) }}" class="btn btn-secondary">Back to
+                        Step 3</a>
+                    <a href="{{ url_for('download_pdf', session_id=session_id) }}" class="btn btn-success">Download
+                        PDF</a>
+                    <a href="{{ url_for('home') }}" class="btn btn-primary">Start New Job</a>
+                </div>
+            </div>
+        </header>
+
+        <iframe class="pdf-viewer" src="{{ url_for('view_pdf', session_id=session_id) }}" title="PDF Preview"></iframe>
+    </div>
+</body>
+
+</html>
