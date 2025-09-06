@@ -1,0 +1,178 @@
+/* Resume Styles - Modern Design */
+
+/* Page & Base Configuration */
+@page {
+    margin: 40pt 40pt;
+}
+
+html,
+body {
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Inter', 'Helvetica', 'Arial', sans-serif;
+    font-size: 10.5pt;
+    line-height: 1.3;
+    /* Adjusted for better readability */
+    color: #111111;
+    background: white;
+    /* Added for clarity */
+}
+
+h1,
+h2,
+h3,
+strong {
+    font-weight: 700;
+}
+
+a {
+    color: #111111;
+    text-decoration: none;
+}
+
+/* Header Styling */
+.header {
+    text-align: center;
+    margin-bottom: 10pt;
+}
+
+.name {
+    font-size: 22pt;
+    font-weight: 700;
+    margin-bottom: 4pt;
+}
+
+.contact-info {
+    font-size: 10.5pt;
+    color: #444444;
+}
+
+.contact-info a {
+    color: #444444;
+}
+
+/* Section Styling */
+.section {
+    margin-top: 12pt;
+    /* Increased top margin */
+    page-break-inside: avoid;
+}
+
+.section-title {
+    font-size: 11.5pt;
+    font-weight: 700;
+    text-transform: uppercase;
+    border-bottom: 0.5pt solid #E5E7EB;
+    padding-bottom: 3pt;
+    /* Increased padding */
+    margin-bottom: 8pt;
+    /* Increased margin */
+}
+
+.summary p {
+    margin: 0 0 4pt 0;
+    text-align: justify;
+}
+
+/* Professional Experience */
+.job-item {
+    margin-bottom: 12pt;
+    /* Increased bottom margin */
+    page-break-inside: avoid;
+}
+
+.job-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 8pt;
+    flex-wrap: wrap;
+    margin-bottom: 2pt;
+    /* Added margin */
+}
+
+.job-company {
+    font-size: 11pt;
+    font-weight: 700;
+}
+
+.job-location {
+    font-style: italic;
+    color: #444444;
+}
+
+.position {
+    margin-top: 4pt;
+}
+
+.position-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 8pt;
+    flex-wrap: wrap;
+}
+
+.position-title {
+    font-weight: 700;
+}
+
+.position-date {
+    color: #444444;
+}
+
+.achievements {
+    padding-left: 15pt;
+    margin: 4pt 0 0 0;
+}
+
+.achievements li {
+    margin-bottom: 3pt;
+}
+
+/* Education Section */
+.education-item {
+    display: flex;
+    justify-content: space-between;
+    gap: 8pt;
+    flex-wrap: wrap;
+    margin-bottom: 4pt;
+}
+
+.education-degree {
+    font-weight: 700;
+}
+
+.education-date {
+    color: #444444;
+}
+
+/* Skills Section */
+.skills-item {
+    margin-bottom: 4pt;
+}
+
+/* Projects Section */
+.project-item {
+    margin-bottom: 8pt;
+    page-break-inside: avoid;
+}
+
+.project-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 8pt;
+    flex-wrap: wrap;
+}
+
+.project-name {
+    font-weight: 700;
+}
+
+.project-date {
+    color: #444444;
+}

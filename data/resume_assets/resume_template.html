@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>{{ resume.first_name }} {{ resume.last_name }} - Resume</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="resume_styles.css">
+</head>
+
+<body>
+    <div class="header">
+        <div class="name">{{ resume.first_name }} {{ resume.last_name }}</div>
+        <div class="contact-info">
+            {# Dynamically generate contact info based on config #}
+            {% for field in pdf_config.layout.contact_info_fields %}
+            {# This correctly checks if a key exists in the 'resume' dictionary #}
+            {% if resume[field] %}
+            {% if not loop.first %}&nbsp;&bull;&nbsp;{% endif %}
+            {% if field == 'email' %}
+            <a href="mailto:{{ resume.email }}">{{ resume.email }}</a>
+            {% elif field in ['linkedin_url', 'github_url', 'website'] %}
+            <a href="{{ resume[field] }}">{{ resume[field] | replace("https://www.", "") | replace("http://www.", "") |
+                replace("https://", "") }}</a>
+            {% else %}
+            {{ resume[field] }}
+            {% endif %}
+            {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+
+    {% for section_name in pdf_config.layout.section_order %}
+
+    {# --- SUMMARY SECTION (MODIFIED) --- #}
+    {% if section_name == 'summary' and resume.summary %}
+    <div class="section summary">
+        <p>{{ resume.summary }}</p>
+    </div>
+    {% endif %}
+
+    {# --- EXPERIENCE SECTION --- #}
+    {% if section_name == 'work_experience' and resume.work_experience %}
+    <div class="section experience">
+        <div class="section-title">Relevant Professional Experience</div>
+        {% for job in resume.work_experience %}
+        <div class="job-item">
+            {% if loop.first or job.company != loop.previtem.company %}
+            <div class="job-header">
+                <span class="job-company">{{ job.company }}</span>
+                <span class="job-location">{{ job.location }}</span>
+            </div>
+            {% endif %}
+            <div class="position">
+                <div class="position-header">
+                    <span class="position-title">{{ job.position }}</span>
+                    <span class="position-date">{{ job.date }}</span>
+                </div>
+                {% if job.description %}
+                <ul class="achievements">
+                    {% for achievement in job.description %}
+                    <li>{{ achievement }}</li>
+                    {% endfor %}
+                </ul>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    {# --- EDUCATION SECTION --- #}
+    {% if section_name == 'education' and resume.education %}
+    <div class="section education">
+        <div class="section-title">Education</div>
+        {% for edu in resume.education %}
+        <div class="education-item">
+            <div>
+                <div class="education-degree">{{ edu.degree }}</div>
+                <div>{{ edu.school }}</div>
+            </div>
+            <div class="education-date">{{ edu.date }}</div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    {# --- PROJECTS SECTION --- #}
+    {% if section_name == 'projects' and resume.projects %}
+    <div class="section projects">
+        <div class="section-title">Projects</div>
+        {% for project in resume.projects %}
+        <div class="project-item">
+            <div class="project-header">
+                <span class="project-name">{{ project.name }}</span>
+                <span class="project-date">{{ project.date }}</span>
+            </div>
+            {% if project.description %}
+            <ul class="achievements">
+                {% for item in project.description %}
+                <li>{{ item }}</li>
+                {% endfor %}
+            </ul>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    {# --- SKILLS SECTION --- #}
+    {% if section_name == 'skills' and resume.skills %}
+    <div class="section skills">
+        <div class="section-title">SKILLS & INTERESTS</div>
+        {% for skill_cat in resume.skills %}
+        <div class="skills-item">
+            <strong>{{ skill_cat.category }}:</strong> {{ skill_cat.entries | join('; ') }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    {% endfor %}
+</body>
+
+</html>

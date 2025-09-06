@@ -1,0 +1,22 @@
+# General
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.env
+.venv
+data/jobs/
+*.pdf
+.DS_Store
+*.log
+
+
+# project specific
+_support/
+.cursorrules
+.cursorignore
+data/jobs/
+notebooks/
