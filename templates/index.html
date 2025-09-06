@@ -13,10 +13,8 @@
         <div class="row justify-content-center">
             <div class="col-md-8">
                 <h1 class="text-center my-5">🤖 RoboResume</h1>
-                <p class="text-center lead mb-4">Upload your base resume to generate a
-                    tailored version.</p>
+                <p class="text-center lead mb-4">Provide a job posting to begin the analysis process.</p>
 
-                <!-- Flash Messages -->
                 {% with messages = get_flashed_messages() %}
                 {% if messages %}
                 <div class="mb-4">
@@ -50,14 +48,8 @@
 
                     <hr class="my-4">
 
-                    <div class="mb-4">
-                        <label for="resume_file" class="form-label">Upload Base Resume (JSON format)</label>
-                        <input class="form-control" type="file" id="resume_file" name="resume_file" accept=".json"
-                            required>
-                    </div>
-
                     <div class="d-grid">
-                        <button type="submit" class="btn btn-primary btn-lg">Generate Resume</button>
+                        <button type="submit" class="btn btn-primary btn-lg">Analyze Job Posting</button>
                     </div>
                 </form>
             </div>

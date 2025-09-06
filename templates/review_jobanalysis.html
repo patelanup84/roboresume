@@ -2,7 +2,7 @@
 <html lang="en">
 
 <head>
-    <meta charset="utf-8">
+    <meta charset="utf--8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>RoboResume - Step 2 Review</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -31,62 +31,125 @@
         .accordion-button:not(.collapsed) {
             background-color: #e7f1ff;
         }
+
+        .keyword-editor {
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+            height: 150px;
+        }
     </style>
 </head>
 
 <body>
     <div class="container mt-5 mb-5">
-        <div class="card p-4">
-            <div class="card-body">
-                <h1 class="card-title text-center mb-2">Step 2: Review Job Analysis</h1>
-                <p class="text-center text-muted mb-4">The AI has extracted the following data. Compare it with the
-                    original markdown (collapsed below).</p>
+        <h1 class="text-center mb-2">Step 2: Job Analysis & Resume Setup</h1>
+        <p class="text-center text-muted mb-4">Review the analysis, then configure and run the resume tailoring.</p>
 
-                <div class="mb-4">
-                    <h5 class="text-muted">Extracted JSON Data</h5>
-                    <pre><code>{{ json_content }}</code></pre>
-                </div>
+        <form action="{{ url_for('run_step3_tailoring', session_id=session_id) }}" method="post"
+            enctype="multipart/form-data">
 
-                <div class="accordion mb-4" id="markdownAccordion">
-                    <div class="accordion-item">
-                        <h2 class="accordion-header"><button class="accordion-button collapsed" type="button"
-                                data-bs-toggle="collapse" data-bs-target="#collapseMarkdown"><strong>View Original
-                                    Markdown</strong></button></h2>
-                        <div id="collapseMarkdown" class="accordion-collapse collapse"
-                            data-bs-parent="#markdownAccordion">
-                            <div class="accordion-body">
-                                <pre><code>{{ markdown_content }}</code></pre>
-                            </div>
+            <div class="accordion mb-4" id="jobDataAccordion">
+                <div class="accordion-item">
+                    <h2 class="accordion-header"><button class="accordion-button collapsed" type="button"
+                            data-bs-toggle="collapse" data-bs-target="#collapseJobData"><strong>View Job Analysis Data
+                                (from Step 1)</strong></button></h2>
+                    <div id="collapseJobData" class="accordion-collapse collapse" data-bs-parent="#jobDataAccordion">
+                        <div class="accordion-body">
+                            <h5 class="text-muted">Extracted JSON Data</h5>
+                            <pre><code>{{ json_content }}</code></pre>
+                            <h5 class="text-muted mt-3">Original Markdown</h5>
+                            <pre><code>{{ markdown_content }}</code></pre>
                         </div>
                     </div>
                 </div>
-
-                <div class="d-grid gap-2 d-md-flex justify-content-md-end mb-4">
-                    <a href="{{ url_for('review_joblisting', session_id=session_id) }}"
-                        class="btn btn-secondary btn-lg">Back to Step 1</a>
-                    <form action="{{ url_for('run_step3_tailoring', session_id=session_id) }}" method="post"
-                        class="d-inline">
-                        <button type="submit" class="btn btn-primary btn-lg">Run Tailoring (Step 3)</button>
-                    </form>
-                </div>
-
-                <div class="accordion" id="promptAccordion">
-                    <div class="accordion-item">
-                        <h2 class="accordion-header"><button class="accordion-button collapsed" type="button"
-                                data-bs-toggle="collapse" data-bs-target="#collapsePrompt"><strong>View AI Prompt for
-                                    Next Step</strong></button></h2>
-                        <div id="collapsePrompt" class="accordion-collapse collapse" data-bs-parent="#promptAccordion">
-                            <div class="accordion-body">
-                                <pre class="mt-2"><code>{{ prompt }}</code></pre>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
             </div>
-        </div>
+
+            <div class="card p-4">
+                <div class="card-body">
+                    <div class="mb-4">
+                        <label for="resume_file" class="form-label">
+                            <h5>1. Select Base Resume</h5>
+                        </label>
+                        <input class="form-control" type="file" id="resume_file" name="resume_file" accept=".json">
+                        <div class="form-text">If left blank, the default resume will be used:
+                            <strong>data/resume_assets/base_resume.json</strong></div>
+                    </div>
+
+                    <hr class="my-4">
+
+                    <div class="mb-4">
+                        <h5>2. Fine-Tune Keywords</h5>
+                        <p class="text-muted">Add, edit, or remove keywords (one per line) to be forcefully injected
+                            into the AI prompt for better tailoring.</p>
+                        <textarea id="keywordEditor" class="form-control keyword-editor">{% for keyword in keywords %}{{ keyword.strip() }}
+{% endfor %}</textarea>
+                        <button type="button" class="btn btn-outline-primary mt-2"
+                            onclick="updatePromptPreview()">Update Prompt Preview</button>
+                        <input type="hidden" id="finalKeywords" name="final_keywords" value="{{ keywords|join(',') }}">
+                    </div>
+
+                    <hr class="my-4">
+
+                    <div class="mb-4">
+                        <h5>3. Preview & Run Tailoring</h5>
+                        <div class="accordion" id="promptAccordion">
+                            <div class="accordion-item">
+                                <h2 class="accordion-header"><button class="accordion-button" type="button"
+                                        data-bs-toggle="collapse" data-bs-target="#collapsePrompt"><strong>View Resume
+                                            Tailoring Prompt</strong></button></h2>
+                                <div id="collapsePrompt" class="accordion-collapse collapse show"
+                                    data-bs-parent="#promptAccordion">
+                                    <div class="accordion-body">
+                                        <pre class="mt-2"><code id="promptPreview">{{ prompt }}</code></pre>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="{{ url_for('review_joblisting', session_id=session_id) }}"
+                            class="btn btn-secondary btn-lg">Back to Step 1</a>
+                        <button type="submit" class="btn btn-primary btn-lg">Run Tailoring (Step 3)</button>
+                    </div>
+                </div>
+            </div>
+        </form>
     </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const basePrompt = {{ prompt | tojson }};
+
+        function updatePromptPreview() {
+            const keywordEditor = document.getElementById('keywordEditor');
+            const finalKeywordsInput = document.getElementById('finalKeywords');
+            const promptPreview = document.getElementById('promptPreview');
+
+            // Get keywords from textarea, split by newline, trim whitespace, and filter empty lines
+            const keywords = keywordEditor.value.split('\n')
+                .map(k => k.trim())
+                .filter(k => k.length > 0);
+
+            // Update the hidden input for form submission
+            finalKeywordsInput.value = keywords.join(',');
+
+            let keywordInjectionText = "";
+            if (keywords.length > 0) {
+                const keywordList = keywords.join(', ');
+                keywordInjectionText = `\n\n**Keyword Focus:** You MUST strategically incorporate the following keywords, which were extracted from the job description, into the rewritten bullet points: ${keywordList}`;
+            }
+
+            // Update the preview display
+            promptPreview.textContent = basePrompt + keywordInjectionText;
+        }
+
+        // Run once on page load to initialize the prompt preview
+        document.addEventListener('DOMContentLoaded', function () {
+            updatePromptPreview();
+        });
+    </script>
 </body>
 
 </html>

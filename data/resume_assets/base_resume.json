@@ -1,0 +1,153 @@
+{
+    "first_name": "Anup",
+    "last_name": "Patel",
+    "email": "patel.anup@outlook.com",
+    "phone_number": "403-123-4567",
+    "location": "Calgary, AB",
+    "website": "anuppatel.ca",
+    "linkedin_url": "https://www.linkedin.com/in/patelanup",
+    "github_url": "https://github.com/patelanup84",
+    "work_experience": [
+        {
+            "company": "Function Consulting",
+            "position": "Founder & Principal Consultant",
+            "location": "Calgary, AB",
+            "date": "2022 – Present",
+            "description": [
+                "Developed a competitive intelligence framework for a regional real estate client, automating tracking of competitor pricing and market demand signals.",
+                "Built a multi-agent AI workflow for a nonprofit healthcare provider, reducing analysis time by 50%.",
+                "Architected a unified analytics and reporting platform for a regional telecom provider, consolidating multiple data sources into a single source of truth.",
+                "Led consulting engagements across healthcare, telecom, real estate, and nonprofit sectors, delivering executive-level presentations that shaped corporate strategy."
+            ],
+            "technologies": [
+                "Python",
+                "Flask",
+                "Docker",
+                "Google Cloud Platform",
+                "BigQuery",
+                "Looker Studio",
+                "dbt",
+                "DuckDB"
+            ]
+        },
+        {
+            "company": "Mount Royal University",
+            "position": "Strategic Marketing Lead",
+            "location": "Calgary, AB",
+            "date": "2023 – 2024",
+            "description": [
+                "Directed strategic planning for Enrollment Services, International Education, and Alumni Relations.",
+                "Conducted market research and data analysis to guide recruitment strategy and alumni engagement.",
+                "Led a cross-functional marketing team and managed external vendors.",
+                "Delivered reporting frameworks that informed leadership decisions and optimized campaign performance."
+            ],
+            "technologies": [
+                "Google Analytics",
+                "Power BI",
+                "Excel",
+                "CRM Systems"
+            ]
+        },
+        {
+            "company": "WS Marketing Agency",
+            "position": "Director, Marketing Intelligence & Performance",
+            "location": "Calgary, AB",
+            "date": "2020 – 2022",
+            "description": [
+                "Led development of a scalable multi-touch attribution framework combining GA, CRM, and media mix modeling.",
+                "Designed and implemented A/B/n and multivariate testing for campaign optimization.",
+                "Conducted incrementality tests and causal impact analyses to isolate marketing lift.",
+                "Managed a team of analysts and developers, mentoring them in SQL, Python, and statistical modeling."
+            ],
+            "technologies": [
+                "Python",
+                "SQL",
+                "BigQuery",
+                "Google Analytics",
+                "Tableau",
+                "Looker Studio"
+            ]
+        },
+        {
+            "company": "WS Marketing Agency",
+            "position": "Marketing Strategist",
+            "location": "Calgary, AB",
+            "date": "2017 – 2020",
+            "description": [
+                "Built ETL pipelines to consolidate data from Salesforce, Act-On, Google Ads, and programmatic ad platforms.",
+                "Created executive dashboards consolidating KPIs for C-suite stakeholders across 20+ enterprise clients.",
+                "Led data governance initiatives, standardizing taxonomy and tagging protocols.",
+                "Designed customer segmentation models and testing frameworks that improved campaign ROI."
+            ],
+            "technologies": [
+                "Python",
+                "SQL",
+                "Salesforce",
+                "Act-On",
+                "Google Ads",
+                "Looker Studio",
+                "Tableau"
+            ]
+        },
+        {
+            "company": "CULT Creative",
+            "position": "Account Planner / Strategist",
+            "location": "Calgary, AB",
+            "date": "2015 – 2017",
+            "description": [
+                "Conducted stakeholder and market research for a higher education institution.",
+                "Developed and executed go-to-market strategies for new product launches, contributing to national expansion.",
+                "Advised a major retailer on consumer engagement campaigns.",
+                "Led digital transformation projects for leisure and recreation organizations."
+            ],
+            "technologies": [
+                "Market Research",
+                "Brand Strategy",
+                "Digital Campaign Tools"
+            ]
+        }
+    ],
+    "education": [
+        {
+            "school": "York University",
+            "degree": "MBA",
+            "field": "Marketing & Brand Management",
+            "location": "Toronto, ON",
+            "date": "2011 – 2013",
+            "gpa": "",
+            "achievements": []
+        },
+        {
+            "school": "University of Calgary",
+            "degree": "B.Sc.",
+            "field": "Biological Sciences",
+            "location": "Calgary, AB",
+            "date": "2003 – 2007",
+            "gpa": "",
+            "achievements": []
+        }
+    ],
+    "skills": [
+        {
+            "category": "Certifications",
+            "entries": [
+                "Python",
+                "SQL",
+                "R",
+                "VBA",
+                "Google Apps Script",
+                "dbt",
+                "DuckDB",
+                "PostgreSQL"
+            ]
+        },
+        {
+            "category": "Interests",
+            "entries": [
+                "Skiing",
+                "Golfing",
+                "Mentoring early-career marketing professionals"
+            ]
+        }
+    ]
+}
