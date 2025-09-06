@@ -32,3 +32,12 @@ TAILORING_PROMPT_TEXT = (
     "5.  **Maintain Accuracy:** Do not exaggerate or misrepresent any information. Stay truthful to the original content while optimizing for relevance."
 )
 
+ATS_PROMPT_TEXT = (
+    "You are an advanced Applicant Tracking System (ATS). Your task is to analyze the provided resume text against the job description. "
+    "First, identify the most critical skills, technologies, and qualifications from the job description. "
+    "Then, scan the resume to see how well these requirements are met. "
+    "Provide a final match score from 0 to 100. "
+    "List the top 5-7 matching keywords and the top 5-7 most important missing keywords. "
+    "Finally, provide a brief summary explaining your reasoning for the score."
+)
+

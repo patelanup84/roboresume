@@ -9,14 +9,15 @@ from openai import OpenAI
 from dotenv import load_dotenv
 
 # --- IMPORTS FROM OUR FILES ---
-from models import JobListing
-from config import CONFIG, ANALYSIS_PROMPT_TEXT, TAILORING_PROMPT_TEXT
+from models import JobListing, ATSValidationResult
+from config import CONFIG, ANALYSIS_PROMPT_TEXT, TAILORING_PROMPT_TEXT, ATS_PROMPT_TEXT
 from utils import create_session_directory, cleanup_old_sessions
 
 # Import services
 from services.job_analyzer import fetch_job_content, analyze_job_posting
 from services.resume_tailor import tailor_resume
 from services.pdf_generator import generate_pdf
+from services.resume_scorer import score_resume
 
 # --- APPLICATION SETUP ---
 load_dotenv()
@@ -172,10 +173,11 @@ def run_step3_tailoring(session_id):
     """Runs the resume tailoring (Step 3) and redirects to the next review page."""
     session_path = os.path.join(CONFIG["output_base_dir"], session_id)
     try:
-        resume_files = glob.glob(os.path.join(session_path, '*.json'))
+        # Find the base resume file (assuming it's the only other .json)
+        all_files = glob.glob(os.path.join(session_path, '*.*'))
         base_resume_path = None
-        for file_path in resume_files:
-            if not file_path.endswith(('structured_job_data.json', 'tailored_resume_content.json', 'final_resume_data.json')):
+        for file_path in all_files:
+            if file_path.endswith('.json') and not file_path.endswith(('structured_job_data.json', 'tailored_resume_content.json', 'final_resume_data.json', 'ats_validation.json')):
                 base_resume_path = file_path
                 break
         
@@ -199,18 +201,16 @@ def review_tailoring(session_id):
     try:
         with open(tailored_path, "r", encoding="utf-8") as f:
             tailored_data = json.load(f)
-            # Template expects 'tailored_content'
             pretty_tailored_json = json.dumps(tailored_data, indent=4)
             
         with open(job_analysis_path, "r", encoding="utf-8") as f:
             job_data = json.load(f)
-            # Template expects 'job_analysis_content'
             pretty_job_json = json.dumps(job_data, indent=4)
         
         return render_template(
             'review_tailoring.html',
-            tailored_content=pretty_tailored_json,  # Changed from tailored_data
-            job_analysis_content=pretty_job_json,   # Added this
+            tailored_content=pretty_tailored_json,
+            job_analysis_content=pretty_job_json,
             session_id=session_id,
             config=CONFIG
         )
@@ -218,15 +218,16 @@ def review_tailoring(session_id):
         flash("Error: Could not find the tailored resume data.")
         return redirect(url_for('home'))
 
-@app.route('/generate/pdf/<session_id>', methods=['POST'])
-def generate_pdf_route(session_id):
-    """Generates the final PDF and redirects to the review page."""
+@app.route('/run/final_steps/<session_id>', methods=['POST'])
+def run_final_steps(session_id):
+    """Generates the PDF and then runs the ATS validation score."""
     session_path = os.path.join(CONFIG["output_base_dir"], session_id)
     try:
-        resume_files = glob.glob(os.path.join(session_path, '*.json'))
+        # Find the base resume file
+        all_files = glob.glob(os.path.join(session_path, '*.*'))
         base_resume_path = None
-        for file_path in resume_files:
-            if not file_path.endswith(('structured_job_data.json', 'tailored_resume_content.json', 'final_resume_data.json')):
+        for file_path in all_files:
+            if file_path.endswith('.json') and not file_path.endswith(('structured_job_data.json', 'tailored_resume_content.json', 'final_resume_data.json', 'ats_validation.json')):
                 base_resume_path = file_path
                 break
         
@@ -234,17 +235,41 @@ def generate_pdf_route(session_id):
             flash("Error: Could not find the base resume file.")
             return redirect(url_for('review_tailoring', session_id=session_id))
         
+        # Step 4: Generate PDF
         generate_pdf(session_path, base_resume_path, CONFIG["pdf_config"])
-        return redirect(url_for('review_pdf', session_id=session_id))
+        
+        # Step 5: Run ATS Scorer
+        score_resume(session_path, client, CONFIG["openai_model"])
+
+        flash("✅ Successfully generated PDF and ATS report!")
+        return redirect(url_for('review_final', session_id=session_id))
+        
     except Exception as e:
-        flash(f"An error occurred during PDF generation: {e}")
+        flash(f"An error occurred during the final steps: {e}")
         return redirect(url_for('review_tailoring', session_id=session_id))
 
-@app.route('/review/pdf/<session_id>')
-def review_pdf(session_id):
-    """Displays the final PDF for review."""
+@app.route('/review/final/<session_id>')
+def review_final(session_id):
+    """Displays the final ATS score and report."""
     session_path = os.path.join(CONFIG["output_base_dir"], session_id)
-    return render_template('review_pdf.html', session_id=session_id)
+    validation_path = os.path.join(session_path, "ats_validation.json")
+    
+    try:
+        with open(validation_path, "r", encoding="utf-8") as f:
+            # Pydantic model can validate the data upon reading
+            ats_result = ATSValidationResult.model_validate_json(f.read())
+            
+        return render_template(
+            'review_final.html',
+            session_id=session_id,
+            ats_result=ats_result
+        )
+    except FileNotFoundError:
+        flash("Error: Could not find the ATS validation report. Please try generating it again.")
+        return redirect(url_for('review_tailoring', session_id=session_id))
+    except Exception as e:
+        flash(f"An error occurred displaying the report: {e}")
+        return redirect(url_for('home'))
 
 @app.route('/download/pdf/<session_id>')
 def download_pdf(session_id):
@@ -262,7 +287,7 @@ def download_pdf(session_id):
 
 @app.route('/view/pdf/<session_id>')
 def view_pdf(session_id):
-    """Serves the PDF file for iframe viewing."""
+    """Serves the PDF file for iframe viewing or direct linking."""
     session_path = os.path.join(CONFIG["output_base_dir"], session_id)
     try:
         pdf_files = glob.glob(os.path.join(session_path, '*.pdf'))

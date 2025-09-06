@@ -54,3 +54,9 @@ class TailoredResumeContent(BaseModel):
     skills: Optional[List[SkillContent]] = None
     projects: Optional[List[ProjectContent]] = None
     target_role: str
+
+class ATSValidationResult(BaseModel):
+    match_score: int = Field(description="A score from 0 to 100 representing how well the resume matches the job description.")
+    matching_keywords: List[str] = Field(description="A list of 5-7 keywords found in both the job description and the resume.")
+    missing_keywords: List[str] = Field(description="A list of the 5-7 most important keywords from the job description that are missing from the resume.")
+    summary: str = Field(description="A brief, 2-3 sentence summary explaining the score and key observations.")
