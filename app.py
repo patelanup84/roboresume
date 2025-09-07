@@ -8,17 +8,21 @@ from werkzeug.utils import secure_filename
 from flask import Flask, render_template, request, redirect, url_for, flash, send_file
 from openai import OpenAI
 from dotenv import load_dotenv
+import zipfile
+from werkzeug.utils import secure_filename
 
 # --- IMPORTS FROM OUR FILES ---
 from models import JobListing, ATSValidationResult
 from config import CONFIG, ANALYSIS_PROMPT_TEXT, TAILORING_PROMPT_TEXT, ATS_PROMPT_TEXT
 from utils import create_session_directory, cleanup_old_sessions, transform_workopolis_url
+from utils import create_session_directory, cleanup_old_sessions, transform_workopolis_url, create_session_zip
 
 # Import services
 from services.job_analyzer import fetch_job_content, analyze_job_posting
 from services.resume_tailor import tailor_resume
 from services.pdf_generator import generate_pdf
 from services.resume_scorer import score_resume
+
 
 # --- APPLICATION SETUP ---
 load_dotenv()
@@ -68,6 +72,53 @@ def generate():
         return redirect(url_for('review_joblisting', session_id=session_id))
     except Exception as e:
         flash(f"An error occurred during content scraping: {e}")
+        return redirect(url_for('home'))
+
+@app.route('/upload/bundle', methods=['POST'])
+def upload_bundle():
+    """Handles the upload of a session bundle (.zip) to resume a session."""
+    if 'session_bundle' not in request.files:
+        flash("Error: No file part in the request.")
+        return redirect(url_for('home'))
+    
+    file = request.files['session_bundle']
+    if file.filename == '':
+        flash("Error: No file selected.")
+        return redirect(url_for('home'))
+
+    if file and file.filename.endswith('.zip'):
+        # 1. Create a new session to extract the bundle into
+        session_id = create_session_directory(CONFIG["output_base_dir"], "resumed", "session")
+        session_path = os.path.join(CONFIG["output_base_dir"], session_id)
+        
+        try:
+            # 2. Extract the zip file
+            with zipfile.ZipFile(file, 'r') as zip_ref:
+                zip_ref.extractall(session_path)
+            
+            # 3. Determine which step to redirect to
+            extracted_files = os.listdir(session_path)
+            if 'tailored_resume_content.json' in extracted_files:
+                flash("✅ Session resumed at 'Review Tailored Resume' step.")
+                return redirect(url_for('review_tailoring', session_id=session_id))
+            elif 'structured_job_data.json' in extracted_files:
+                flash("✅ Session resumed at 'Job Analysis' step.")
+                return redirect(url_for('review_jobanalysis', session_id=session_id))
+            elif 'job_posting.md' in extracted_files:
+                flash("✅ Session resumed at 'Review Job Listing' step.")
+                return redirect(url_for('review_joblisting', session_id=session_id))
+            else:
+                flash("Error: The uploaded zip file does not contain valid session data.")
+                return redirect(url_for('home'))
+
+        except zipfile.BadZipFile:
+            flash("Error: The uploaded file is not a valid zip file.")
+            return redirect(url_for('home'))
+        except Exception as e:
+            flash(f"An error occurred while processing the bundle: {e}")
+            return redirect(url_for('home'))
+    else:
+        flash("Error: Invalid file type. Please upload a .zip session bundle.")
         return redirect(url_for('home'))
 
 @app.route('/review/joblisting/<session_id>')
@@ -318,6 +369,25 @@ def download_pdf(session_id):
     except Exception as e:
         flash(f"An error occurred while trying to download the file: {e}")
         return redirect(url_for('home'))
+
+@app.route('/download/bundle/<session_id>')
+def download_bundle(session_id):
+    """Creates and downloads a zip bundle of the session files."""
+    session_path = os.path.join(CONFIG["output_base_dir"], session_id)
+    zip_name = f"{session_id}_bundle.zip"
+    zip_path = os.path.join(session_path, zip_name)
+
+    try:
+        # Create the zip file using our new utility function
+        created_zip_path = create_session_zip(session_path, zip_path)
+        if not created_zip_path:
+            flash("Error: Could not create session bundle, no files to zip.")
+            return redirect(url_for('review_final', session_id=session_id))
+
+        return send_file(created_zip_path, as_attachment=True, download_name=zip_name)
+    except Exception as e:
+        flash(f"An error occurred while creating the bundle: {e}")
+        return redirect(url_for('review_final', session_id=session_id))
 
 @app.route('/view/pdf/<session_id>')
 def view_pdf(session_id):

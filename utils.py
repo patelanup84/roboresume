@@ -9,6 +9,8 @@ from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Optional
 from urllib.parse import urlparse, parse_qs
+import glob
+import zipfile
 
 
 def sanitize_for_path(text: str, max_len: int = 50, style: str = 'descriptive') -> str:
@@ -97,4 +99,26 @@ def transform_workopolis_url(url: str) -> str:
             
     except Exception:
         return url
+
+def create_session_zip(session_path: str, zip_path: str) -> Optional[str]:
+    """
+    Creates a zip archive of the session's important files (.md, .json, .pdf).
+    """
+    try:
+        files_to_zip = []
+        for extension in ["*.md", "*.json", "*.pdf"]:
+            files_to_zip.extend(glob.glob(os.path.join(session_path, extension)))
+
+        if not files_to_zip:
+            return None
+
+        with zipfile.ZipFile(zip_path, 'w') as zipf:
+            for file in files_to_zip:
+                # Add file to zip, using just the filename as the archive name
+                zipf.write(file, os.path.basename(file))
+        
+        return zip_path
+    except Exception as e:
+        print(f"Error creating zip file: {e}")
+        return None
 

@@ -13,7 +13,6 @@
         <div class="row justify-content-center">
             <div class="col-md-8">
                 <h1 class="text-center my-5">🤖 RoboResume</h1>
-                <p class="text-center lead mb-4">Provide a job posting to begin the analysis process.</p>
 
                 {% with messages = get_flashed_messages() %}
                 {% if messages %}
@@ -28,30 +27,48 @@
                 {% endif %}
                 {% endwith %}
 
-                <form action="/generate" method="post" enctype="multipart/form-data">
-
-                    <div class="mb-3">
-                        <label for="job_url" class="form-label">Job Posting URL (Optional)</label>
-                        <input type="url" class="form-control" id="job_url" name="job_url"
-                            placeholder="https://www.example.com/careers/job123">
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h4>Start a New Job Analysis</h4>
                     </div>
-
-                    <div class="text-center my-3">
-                        <strong>OR</strong>
+                    <div class="card-body">
+                        <form action="/generate" method="post">
+                            <div class="mb-3">
+                                <label for="job_url" class="form-label">Job Posting URL</label>
+                                <input type="url" class="form-control" id="job_url" name="job_url"
+                                    placeholder="https://www.example.com/careers/job123">
+                            </div>
+                            <div class="text-center my-3"><strong>OR</strong></div>
+                            <div class="mb-3">
+                                <label for="job_description" class="form-label">Paste Job Description</label>
+                                <textarea class="form-control" id="job_description" name="job_description" rows="8"
+                                    placeholder="Paste the full job description here..."></textarea>
+                            </div>
+                            <div class="d-grid">
+                                <button type="submit" class="btn btn-primary btn-lg">Analyze Job Posting</button>
+                            </div>
+                        </form>
                     </div>
+                </div>
 
-                    <div class="mb-3">
-                        <label for="job_description" class="form-label">Paste Job Description</label>
-                        <textarea class="form-control" id="job_description" name="job_description" rows="8"
-                            placeholder="Paste the full job description here..."></textarea>
+                <div class="card">
+                    <div class="card-header">
+                        <h4>Resume from Session Bundle</h4>
                     </div>
-
-                    <hr class="my-4">
-
-                    <div class="d-grid">
-                        <button type="submit" class="btn btn-primary btn-lg">Analyze Job Posting</button>
+                    <div class="card-body">
+                        <form action="/upload/bundle" method="post" enctype="multipart/form-data">
+                            <div class="mb-3">
+                                <label for="session_bundle" class="form-label">Upload your .zip session file to pick up
+                                    where you left off.</label>
+                                <input class="form-control" type="file" id="session_bundle" name="session_bundle"
+                                    accept=".zip" required>
+                            </div>
+                            <div class="d-grid">
+                                <button type="submit" class="btn btn-secondary btn-lg">Resume Session</button>
+                            </div>
+                        </form>
                     </div>
-                </form>
+                </div>
             </div>
         </div>
     </div>

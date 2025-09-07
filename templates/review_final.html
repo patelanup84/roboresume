@@ -88,7 +88,11 @@
                             class="btn btn-secondary btn-lg">Preview PDF</a>
                         <a href="{{ url_for('download_pdf', session_id=session_id) }}"
                             class="btn btn-success btn-lg">Download PDF</a>
-                        <a href="{{ url_for('home') }}" class="btn btn-primary btn-lg">Start New Job</a>
+
+                        <a href="{{ url_for('download_bundle', session_id=session_id) }}"
+                            class="btn btn-info btn-lg">Download Session (.zip)</a>
+
+                        <a href="{{ url_for('home') }}" class="btn btn-primary btn-lg mt-2">Start New Job</a>
                     </div>
                 </div>
 
