@@ -12,7 +12,7 @@ from dotenv import load_dotenv
 # --- IMPORTS FROM OUR FILES ---
 from models import JobListing, ATSValidationResult
 from config import CONFIG, ANALYSIS_PROMPT_TEXT, TAILORING_PROMPT_TEXT, ATS_PROMPT_TEXT
-from utils import create_session_directory, cleanup_old_sessions
+from utils import create_session_directory, cleanup_old_sessions, transform_workopolis_url
 
 # Import services
 from services.job_analyzer import fetch_job_content, analyze_job_posting
@@ -38,6 +38,10 @@ def generate():
     job_url = request.form.get('job_url', '').strip()
     job_description = request.form.get('job_description', '').strip()
     
+    # --- NEW: Transform Workopolis URL if necessary ---
+    if job_url:
+        job_url = transform_workopolis_url(job_url)
+
     if not (job_url or job_description):
         flash("Error: Please provide either a job URL or job description.")
         return redirect(url_for('home'))

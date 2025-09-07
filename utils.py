@@ -8,6 +8,7 @@ import shutil
 from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Optional
+from urllib.parse import urlparse, parse_qs
 
 
 def sanitize_for_path(text: str, max_len: int = 50, style: str = 'descriptive') -> str:
@@ -72,4 +73,28 @@ def cleanup_old_sessions(base_dir: str, days: int = 30) -> None:
 def ensure_directory_exists(directory_path: str) -> None:
     """Ensure a directory exists, create if not."""
     os.makedirs(directory_path, exist_ok=True)
+
+
+def transform_workopolis_url(url: str) -> str:
+    """
+    Checks if a URL is a Workopolis search URL and transforms it into a direct
+    viewjob URL if it contains a 'job' parameter.
+    """
+    try:
+        if "workopolis.com/search" not in url:
+            return url
+
+        parsed_url = urlparse(url)
+        query_params = parse_qs(parsed_url.query)
+
+        job_id = query_params.get('job', [None])[0]
+
+        if job_id:
+            new_url = f"https://www.workopolis.com/jobsearch/viewjob/{job_id}"
+            return new_url
+        else:
+            return url
+            
+    except Exception:
+        return url
 
