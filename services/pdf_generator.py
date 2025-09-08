@@ -1,6 +1,6 @@
 """
 PDF generation service - handles final PDF assembly
-EXTRACTED FROM jobbot resume_pipeline.py (step 4)
+UPDATED for Resume Builder architecture compatibility
 """
 
 import os
@@ -10,31 +10,30 @@ from jinja2 import Environment, FileSystemLoader
 from weasyprint import HTML as WeasyHTML, CSS as WeasyCSS
 
 # Local imports
-from models import JobListing, TailoredResumeContent
+from models import JobListing, TailoredResumeContent, IdealCandidateProfile
 
 
-def generate_pdf(session_path: str, base_resume_path: str, pdf_config: dict) -> str:
+def generate_pdf(session_path: str, user_profile_path: str, pdf_config: dict) -> str:
     """
     Reads all intermediate files and generates the final PDF.
-    EXTRACTED FROM jobbot resume_pipeline.py step_4_assemble_and_create_pdf
+    UPDATED for Resume Builder architecture - now works with both new and legacy formats.
     """
     print("\n=== Step 4: Generating PDF ===")
     
-    # Load all required data
-    job_data_path = os.path.join(session_path, "structured_job_data.json")
+    # Load the tailored resume content (this file name stays the same)
     tailored_content_path = os.path.join(session_path, "tailored_resume_content.json")
-    
-    with open(job_data_path, "r", encoding="utf-8") as f:
-        job_data = JobListing.model_validate_json(f.read())
-    
     with open(tailored_content_path, "r", encoding="utf-8") as f:
-        tailored_content = TailoredResumeContent.model_validate_json(f.read())
+        tailored_content_data = json.load(f)
     
-    with open(base_resume_path, "r", encoding="utf-8") as f:
-        base_resume = json.load(f)
+    # Load user profile for personal info
+    with open(user_profile_path, "r", encoding="utf-8") as f:
+        user_profile = json.load(f)
+    
+    # Try to load job data - prefer new format, fall back to legacy
+    job_data = _load_job_analysis_data(session_path)
     
     # Generate final resume data
-    final_resume_data = _assemble_final_resume(base_resume, tailored_content, job_data, pdf_config)
+    final_resume_data = _assemble_final_resume_builder(user_profile, tailored_content_data, job_data, pdf_config)
     
     # Save final resume data
     final_resume_path = os.path.join(session_path, "final_resume_data.json")
@@ -49,13 +48,79 @@ def generate_pdf(session_path: str, base_resume_path: str, pdf_config: dict) -> 
 
 
 # ============================================================================
-# HELPER FUNCTIONS (EXTRACTED FROM jobbot resume_pipeline.py)
+# HELPER FUNCTIONS
 # ============================================================================
 
-def _assemble_final_resume(base_resume: dict, tailored_content: TailoredResumeContent, job_data: JobListing, pdf_config: dict) -> dict:
+def _load_job_analysis_data(session_path: str) -> dict:
     """
-    Assembles the final resume data by merging base resume with tailored content.
-    EXTRACTED FROM jobbot resume_pipeline.py
+    Loads job analysis data, preferring new format over legacy.
+    """
+    # Try new Resume Builder format first
+    ideal_profile_path = os.path.join(session_path, "ideal_candidate_profile.json")
+    if os.path.exists(ideal_profile_path):
+        print("📊 Loading job analysis from ideal_candidate_profile.json (Resume Builder format)")
+        with open(ideal_profile_path, "r", encoding="utf-8") as f:
+            ideal_profile = json.load(f)
+        
+        # Convert to a format compatible with PDF generation
+        return {
+            "company_name": "Target Company",  # Default since new format doesn't store this
+            "position_title": "Target Position",  # Default since new format doesn't store this
+            "experience_summary": ideal_profile.get("experience_summary", ""),
+            "top_technical_skills": ideal_profile.get("top_technical_skills", []),
+            "top_soft_skills": ideal_profile.get("top_soft_skills", []),
+            "format": "ideal_candidate_profile"
+        }
+    
+    # Fall back to legacy format
+    legacy_path = os.path.join(session_path, "structured_job_data.json")
+    if os.path.exists(legacy_path):
+        print("📊 Loading job analysis from structured_job_data.json (Legacy format)")
+        with open(legacy_path, "r", encoding="utf-8") as f:
+            legacy_data = json.load(f)
+        legacy_data["format"] = "legacy"
+        return legacy_data
+    
+    # If neither exists, return minimal data
+    print("⚠️ No job analysis data found, using minimal defaults")
+    return {
+        "company_name": "Target Company",
+        "position_title": "Target Position", 
+        "format": "none"
+    }
+
+
+def _assemble_final_resume_builder(user_profile: dict, tailored_content: dict, job_data: dict, pdf_config: dict) -> dict:
+    """
+    Assembles the final resume data for the Resume Builder architecture.
+    UPDATED to work with new data structure.
+    """
+    # Start with personal info from user profile
+    final_resume = user_profile.get("personal_info", {}).copy()
+    
+    # Add the built content from Resume Builder
+    final_resume.update({
+        "summary": tailored_content.get("summary", ""),
+        "work_experience": tailored_content.get("work_experience", []),
+        "education": tailored_content.get("education", []),
+        "skills": tailored_content.get("skills", []),
+        "projects": tailored_content.get("projects", [])
+    })
+    
+    # Add job targeting info
+    final_resume["target_role"] = tailored_content.get("target_role", job_data.get("experience_summary", ""))
+    
+    # Add company name if available
+    if job_data.get("company_name"):
+        final_resume["target_company"] = job_data["company_name"]
+    
+    return final_resume
+
+
+def _assemble_final_resume_legacy(base_resume: dict, tailored_content: TailoredResumeContent, job_data: JobListing, pdf_config: dict) -> dict:
+    """
+    Legacy function - assembles final resume for old tailoring architecture.
+    KEPT for backward compatibility.
     """
     final_resume = base_resume.copy()
     
@@ -86,7 +151,7 @@ def _assemble_final_resume(base_resume: dict, tailored_content: TailoredResumeCo
 def _create_pdf_from_data(resume_data: dict, session_path: str, pdf_config: dict) -> str:
     """
     Creates PDF from resume data using HTML template.
-    EXTRACTED FROM jobbot resume_pipeline.py
+    UNCHANGED - works with both architectures.
     """
     try:
         # Setup Jinja2 environment
@@ -97,7 +162,7 @@ def _create_pdf_from_data(resume_data: dict, session_path: str, pdf_config: dict
         template = env.get_template(template_name)
         
         # Render HTML
-        html_content = template.render(resume=resume_data, pdf_config=pdf_config)  # FIXED LINE
+        html_content = template.render(resume=resume_data, pdf_config=pdf_config)
         
         # Save rendered HTML for debugging
         html_output_path = os.path.join(session_path, "rendered_resume.html")

@@ -1,0 +1,139 @@
+{
+    "summary": "Digital Marketing Strategist with extensive experience in developing and executing data-driven marketing strategies. Proven track record in utilizing Python and Flask for backend API development, and leveraging AWS and Docker for scalable solutions. Expertise in managing digital marketing campaigns, conducting keyword research, and optimizing performance through A/B testing and retargeting strategies.",
+    "work_experience": [
+        {
+            "company": "Function Consulting",
+            "position": "Founder & Principal Consultant",
+            "date": "2022 – Present",
+            "description": [
+                "Developed a competitive intelligence framework using Python and Flask, automating competitor pricing and market demand tracking for a real estate client.",
+                "Architected a scalable analytics platform on AWS, consolidating data sources for a telecom provider, enhancing reporting accuracy and efficiency.",
+                "Implemented Docker for containerization, improving deployment processes and scalability for healthcare analytics workflows.",
+                "Led strategic consulting engagements, delivering insights that informed corporate strategy across multiple sectors."
+            ],
+            "location": "Calgary, AB",
+            "technologies": [
+                "Python",
+                "Flask",
+                "Docker",
+                "Google Cloud Platform",
+                "BigQuery",
+                "Looker Studio",
+                "dbt",
+                "DuckDB"
+            ]
+        },
+        {
+            "company": "Mount Royal University",
+            "position": "Strategic Marketing Lead",
+            "date": "2023 – 2024",
+            "description": [
+                "Directed strategic marketing initiatives, leveraging data analysis to optimize recruitment and alumni engagement strategies.",
+                "Managed a cross-functional team to deliver comprehensive marketing campaigns, enhancing brand visibility and engagement."
+            ],
+            "location": "Calgary, AB",
+            "technologies": [
+                "Google Analytics",
+                "Power BI",
+                "Excel",
+                "CRM Systems"
+            ]
+        },
+        {
+            "company": "WS Marketing Agency",
+            "position": "Director, Marketing Intelligence & Performance",
+            "date": "2020 – 2022",
+            "description": [
+                "Developed a scalable multi-touch attribution framework integrating Python and SQL, enhancing campaign performance analysis.",
+                "Implemented A/B testing strategies to optimize digital marketing campaigns, increasing ROI for B2B SaaS clients.",
+                "Led a team in conducting incrementality tests, providing insights that informed strategic marketing decisions."
+            ],
+            "location": "Calgary, AB",
+            "technologies": [
+                "Python",
+                "SQL",
+                "BigQuery",
+                "Google Analytics",
+                "Tableau",
+                "Looker Studio"
+            ]
+        },
+        {
+            "company": "WS Marketing Agency",
+            "position": "Marketing Strategist",
+            "date": "2017 – 2020",
+            "description": [
+                "Built ETL pipelines using Python to integrate data from various platforms, improving data accessibility for strategic decision-making.",
+                "Designed customer segmentation models that enhanced targeting and increased campaign ROI."
+            ],
+            "location": "Calgary, AB",
+            "technologies": [
+                "Python",
+                "SQL",
+                "Salesforce",
+                "Act-On",
+                "Google Ads",
+                "Looker Studio",
+                "Tableau"
+            ]
+        },
+        {
+            "company": "CULT Creative",
+            "position": "Account Planner / Strategist",
+            "date": "2015 – 2017",
+            "description": [
+                "Executed go-to-market strategies for product launches, driving national expansion and market penetration.",
+                "Led digital transformation projects, enhancing consumer engagement for leisure and recreation organizations."
+            ],
+            "location": "Calgary, AB",
+            "technologies": [
+                "Market Research",
+                "Brand Strategy",
+                "Digital Campaign Tools"
+            ]
+        }
+    ],
+    "education": [
+        {
+            "school": "York University",
+            "degree": "MBA",
+            "field": "Marketing & Brand Management",
+            "date": "2011 – 2013",
+            "gpa": "",
+            "achievements": []
+        },
+        {
+            "school": "University of Calgary",
+            "degree": "B.Sc.",
+            "field": "Biological Sciences",
+            "date": "2003 – 2007",
+            "gpa": "",
+            "achievements": []
+        }
+    ],
+    "skills": [
+        {
+            "category": "Certifications",
+            "entries": [
+                "Python",
+                "SQL",
+                "R",
+                "VBA",
+                "Google Apps Script",
+                "dbt",
+                "DuckDB",
+                "PostgreSQL"
+            ]
+        },
+        {
+            "category": "Interests",
+            "entries": [
+                "Skiing",
+                "Golfing",
+                "Mentoring early-career marketing professionals"
+            ]
+        }
+    ],
+    "projects": null,
+    "target_role": "Digital Marketing Strategist"
+}

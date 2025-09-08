@@ -5,7 +5,36 @@ from typing import Any, Dict, List, Literal, Optional
 from pydantic import BaseModel, Field, HttpUrl
 
 # --------------------------------------------------------------------------
-# Pydantic Data Models (EXTRACTED FROM jobbot resume_pipeline.py)
+# Resume Builder Data Models
+# --------------------------------------------------------------------------
+
+class IdealCandidateProfile(BaseModel):
+    """Defines the key traits and skills extracted from a job description."""
+    top_technical_skills: List[str] = Field(..., description="A list of the 5-7 most critical technical skills or technologies.")
+    top_soft_skills: List[str] = Field(..., description="A list of the 3-4 most important soft skills or professional traits (e.g., leadership, problem-solving).")
+    experience_summary: str = Field(..., description="A 1-2 sentence summary of the ideal candidate's required experience.")
+
+class GeneratedWorkExperience(BaseModel):
+    company: str
+    position: str
+    date: str
+    description: List[str]
+    location: Optional[str] = None
+    technologies: Optional[List[str]] = Field(default_factory=list)
+
+class GeneratedSkill(BaseModel):
+    category: str
+    entries: List[str]
+
+class GeneratedResume(BaseModel):
+    """The final, assembled resume content, ready for PDF generation."""
+    summary: str
+    work_experience: List[GeneratedWorkExperience]
+    skills: List[GeneratedSkill]
+    target_role: str
+
+# --------------------------------------------------------------------------
+# Legacy Data Models (Keep for compatibility)
 # --------------------------------------------------------------------------
 
 class JobListing(BaseModel):

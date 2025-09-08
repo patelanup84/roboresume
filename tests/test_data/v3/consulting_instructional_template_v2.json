@@ -1,0 +1,105 @@
+{
+    "_comment": "V2: This instructional template is for a top-tier consulting role. It uses trait-specific action verbs and covers the full work history.",
+    "summary": "{Instruction: Write a powerful 2-3 sentence summary for a top-tier consulting role. Directly mirror the language and keywords from the job description and showcase a blend of the 4 key consulting traits: Problem-solving, Personal impact, Entrepreneurial drive, and Leadership. Keep it concise and under 50 words.}",
+    "work_experience": [
+        {
+            "company": "Function Consulting",
+            "position": "Founder & Principal Consultant",
+            "date": "2022 – Present",
+            "description": [
+                {
+                    "trait": "Entrepreneurial Drive & Leadership",
+                    "instruction": "{Instruction: Start with a leadership-focused action verb (e.g., Led, Directed, Spearheaded). Rewrite the achievement to highlight initiative in a business context, structured to show the action, result, and metric. Max 25 words.}"
+                },
+                {
+                    "trait": "Problem-Solving",
+                    "instruction": "{Instruction: Start with an analytical action verb (e.g., Analyzed, Engineered, Modeled). Rewrite the achievement to detail a complex analytical success, emphasizing the efficiency or accuracy gains. Max 25 words.}"
+                },
+                {
+                    "trait": "Personal Impact",
+                    "instruction": "{Instruction: Start with an influential action verb (e.g., Advised, Guided, Presented). Rewrite the achievement to focus on client-facing work where your insights directly influenced a senior stakeholder's decision. Max 25 words.}"
+                }
+            ]
+        },
+        {
+            "company": "Mount Royal University",
+            "position": "Strategic Marketing Lead",
+            "date": "2023 – 2024",
+            "description": [
+                {
+                    "trait": "Entrepreneurial Drive",
+                    "instruction": "{Instruction: Start with an entrepreneurial action verb (e.g., Launched, Created, Established). Rewrite the achievement to showcase the creation of a new program or initiative, quantifying its success. Max 25 words.}"
+                },
+                {
+                    "trait": "Problem-Solving",
+                    "instruction": "{Instruction: Start with a research-focused action verb (e.g., Identified, Uncovered, Assessed). Rewrite the achievement to highlight the use of market research or analysis to solve a problem. Max 25 words.}"
+                }
+            ]
+        },
+        {
+            "company": "WS Marketing Agency",
+            "position": "Director, Marketing Intelligence & Performance",
+            "date": "2020 – 2022",
+            "description": [
+                {
+                    "trait": "Problem-Solving & Leadership",
+                    "instruction": "{Instruction: Start with a verb showing technical leadership (e.g., Architected, Designed, Implemented). Rewrite the achievement to describe developing a complex framework that improved team performance. Quantify the ROI or efficiency gain. Max 25 words.}"
+                },
+                {
+                    "trait": "Personal Impact",
+                    "instruction": "{Instruction: Start with an analytical action verb (e.g., Conducted, Analyzed, Modeled). Rewrite the achievement to describe a complex analysis that led to a significant strategic business decision. Max 25 words.}"
+                }
+            ]
+        },
+        {
+            "company": "WS Marketing Agency",
+            "position": "Marketing Strategist",
+            "date": "2017 – 2020",
+            "description": [
+                {
+                    "trait": "Problem-Solving",
+                    "instruction": "{Instruction: Start with a technical action verb (e.g., Built, Automated, Engineered). Rewrite the achievement to highlight the creation of data pipelines or tools that enabled a business function. Max 25 words.}"
+                },
+                {
+                    "trait": "Personal Impact",
+                    "instruction": "{Instruction: Start with a communication-focused verb (e.g., Presented, Translated, Communicated). Rewrite the achievement to show how you made complex data understandable and actionable for senior leaders. Max 25 words.}"
+                }
+            ]
+        }
+    ],
+    "education": [
+        {
+            "school": "York University",
+            "degree": "MBA",
+            "field": "Marketing & Brand Management",
+            "date": "2011 – 2013",
+            "awards": "{Instruction: Based on the base resume data, detail the competitive award, specifying the level of competition (e.g., 'Awarded for top 5% of class' or '1 of 500 applicants'). If none, replace this with a summary of relevant coursework.}"
+        }
+    ],
+    "extracurricular_achievements": [
+        {
+            "organization": "{Instruction: From the base resume data, fill in the name of the extracurricular organization.}",
+            "role": "{Instruction: From the base resume data, fill in the role held.}",
+            "date": "{Instruction: From the base resume data, fill in the dates.}",
+            "description": [
+                "{Instruction: Trait: Leadership. Start with a leadership action verb (e.g., Mentored, Coached, Organized). Rewrite the description from the base resume to showcase leadership in a non-professional context. Quantify the impact (e.g., number of people led, funds raised).}"
+            ]
+        }
+    ],
+    "skills": {
+        "_comment": "This section should be concise and easy for a recruiter to scan.",
+        "technical": "{Instruction: From the base resume data, list the most relevant technical skills. Prioritize skills mentioned in the job description. Example: Python (Pandas), SQL, Tableau.}",
+        "languages": "{Instruction: From the base resume data, list languages and proficiency levels. Example: English (Native), French (Fluent).}",
+        "interests": "{Instruction: From the base resume data, list 2-3 unique, specific interests that are good conversation starters and hint at positive traits (e.g., 'Competitive Marathon Runner' shows discipline). Avoid generic interests.}"
+    },
+    "personal_information": {
+        "_comment": "This data will be merged from your base resume data file, not generated by the AI.",
+        "first_name": "",
+        "last_name": "",
+        "email": "",
+        "phone_number": "",
+        "location": "",
+        "linkedin_url": "",
+        "github_url": ""
+    }
+}

@@ -20,3 +20,5 @@ _support/
 .cursorignore
 data/jobs/
 notebooks/
+test/test_data
+test/test_output

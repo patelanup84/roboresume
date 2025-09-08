@@ -12,8 +12,8 @@ import zipfile
 from werkzeug.utils import secure_filename
 
 # --- IMPORTS FROM OUR FILES ---
-from models import JobListing, ATSValidationResult
-from config import CONFIG, ANALYSIS_PROMPT_TEXT, TAILORING_PROMPT_TEXT, ATS_PROMPT_TEXT
+from models import IdealCandidateProfile, ATSValidationResult
+from config import CONFIG, JOB_ANALYSIS_PROMPT, WORK_EXPERIENCE_PROMPT, SKILLS_PROMPT, SUMMARY_PROMPT, ATS_PROMPT_TEXT
 from utils import create_session_directory, cleanup_old_sessions, transform_workopolis_url
 from utils import create_session_directory, cleanup_old_sessions, transform_workopolis_url, create_session_zip
 
@@ -42,7 +42,7 @@ def generate():
     job_url = request.form.get('job_url', '').strip()
     job_description = request.form.get('job_description', '').strip()
     
-    # --- NEW: Transform Workopolis URL if necessary ---
+    # --- Transform Workopolis URL if necessary ---
     if job_url:
         job_url = transform_workopolis_url(job_url)
 
@@ -96,13 +96,16 @@ def upload_bundle():
             with zipfile.ZipFile(file, 'r') as zip_ref:
                 zip_ref.extractall(session_path)
             
-            # 3. Determine which step to redirect to
+            # 3. Determine which step to redirect to (Updated for Resume Builder)
             extracted_files = os.listdir(session_path)
             if 'tailored_resume_content.json' in extracted_files:
-                flash("✅ Session resumed at 'Review Tailored Resume' step.")
+                flash("✅ Session resumed at 'Review Built Resume' step.")
                 return redirect(url_for('review_tailoring', session_id=session_id))
-            elif 'structured_job_data.json' in extracted_files:
-                flash("✅ Session resumed at 'Job Analysis' step.")
+            elif 'ideal_candidate_profile.json' in extracted_files:
+                flash("✅ Session resumed at 'Resume Builder' step.")
+                return redirect(url_for('review_jobanalysis', session_id=session_id))
+            elif 'structured_job_data.json' in extracted_files:  # Legacy support
+                flash("✅ Session resumed at 'Job Analysis' step (Legacy).")
                 return redirect(url_for('review_jobanalysis', session_id=session_id))
             elif 'job_posting.md' in extracted_files:
                 flash("✅ Session resumed at 'Review Job Listing' step.")
@@ -134,7 +137,7 @@ def review_joblisting(session_id):
             markdown_content=content, 
             session_id=session_id, 
             config=CONFIG, 
-            prompt=ANALYSIS_PROMPT_TEXT
+            prompt=JOB_ANALYSIS_PROMPT  # Updated prompt
         )
     except FileNotFoundError:
         flash("Error: Could not find the scraped content. Please try again.")
@@ -171,10 +174,10 @@ def reset_markdown(session_id):
 
 @app.route('/run/analysis/<session_id>', methods=['POST'])
 def run_step2_analysis(session_id):
-    """Runs the AI job analysis (Step 2) and redirects to the next review page."""
+    """Runs the AI job analysis (Step 2) and redirects to the next review page. UPDATED for Resume Builder."""
     session_path = os.path.join(CONFIG["output_base_dir"], session_id)
     try:
-        analyze_job_posting(session_path, client, CONFIG["openai_model"])
+        analyze_job_posting(session_path, client, CONFIG["openai_model"])  # Now creates ideal_candidate_profile.json
         return redirect(url_for('review_jobanalysis', session_id=session_id))
     except Exception as e:
         flash(f"An error occurred during job analysis: {e}")
@@ -182,16 +185,32 @@ def run_step2_analysis(session_id):
 
 @app.route('/review/jobanalysis/<session_id>')
 def review_jobanalysis(session_id):
-    """Displays the job analysis JSON and the original markdown for comparison."""
+    """Displays the job analysis and handles user profile upload. UPDATED for Resume Builder."""
     session_path = os.path.join(CONFIG["output_base_dir"], session_id)
-    analysis_path = os.path.join(session_path, "structured_job_data.json")
+    
+    # Try to load the new ideal_candidate_profile.json first, fall back to legacy
+    ideal_profile_path = os.path.join(session_path, "ideal_candidate_profile.json")
+    legacy_analysis_path = os.path.join(session_path, "structured_job_data.json")
     markdown_path = os.path.join(session_path, "job_posting.md")
     
     try:
-        with open(analysis_path, "r", encoding="utf-8") as f:
-            analysis_data = json.load(f)
-            pretty_json = json.dumps(analysis_data, indent=4)
-            keywords = analysis_data.get("keywords", []) # Extract keywords
+        # Load analysis data (prefer new format)
+        if os.path.exists(ideal_profile_path):
+            with open(ideal_profile_path, "r", encoding="utf-8") as f:
+                analysis_data = json.load(f)
+                pretty_json = json.dumps(analysis_data, indent=4)
+                # Extract keywords from the new format
+                keywords = analysis_data.get("top_technical_skills", []) + analysis_data.get("top_soft_skills", [])
+        elif os.path.exists(legacy_analysis_path):
+            with open(legacy_analysis_path, "r", encoding="utf-8") as f:
+                analysis_data = json.load(f)
+                pretty_json = json.dumps(analysis_data, indent=4)
+                keywords = analysis_data.get("keywords", [])
+        else:
+            flash("Error: Could not find analysis data. Please run analysis first.")
+            return redirect(url_for('review_joblisting', session_id=session_id))
+            
+        # Load markdown content
         with open(markdown_path, "r", encoding="utf-8") as f:
             markdown_content = f.read()
         
@@ -201,43 +220,43 @@ def review_jobanalysis(session_id):
             markdown_content=markdown_content,
             session_id=session_id,
             config=CONFIG,
-            prompt=TAILORING_PROMPT_TEXT,
-            keywords=keywords # Pass keywords to template
+            prompt=WORK_EXPERIENCE_PROMPT,  # Updated prompt
+            keywords=keywords
         )
-    except FileNotFoundError:
-        flash("Error: Could not find the analysis data. Please try again.")
+    except FileNotFoundError as e:
+        flash(f"Error: Could not find required files. {e}")
         return redirect(url_for('home'))
 
 @app.route('/run/tailoring/<session_id>', methods=['POST'])
 def run_step3_tailoring(session_id):
-    """Handles resume submission and keyword finalization, then runs tailoring."""
+    """Handles user profile upload and runs the Resume Builder pipeline. UPDATED for Resume Builder."""
     session_path = os.path.join(CONFIG["output_base_dir"], session_id)
-    base_resume_path = os.path.join(session_path, "base_resume.json")
+    user_profile_path = os.path.join(session_path, "user_profile.json")  # Changed from base_resume.json
     
     try:
-        # 1. Handle the base resume file
-        resume_file = request.files.get('resume_file')
-        if resume_file and resume_file.filename:
-            # User uploaded a new resume, save it
-            resume_file.save(base_resume_path)
-            flash("✅ New base resume uploaded and saved.")
-        elif not os.path.exists(base_resume_path):
+        # 1. Handle the user profile file
+        profile_file = request.files.get('resume_file')  # Form field name stays the same for compatibility
+        if profile_file and profile_file.filename:
+            # User uploaded a new profile, save it
+            profile_file.save(user_profile_path)
+            flash("✅ New user profile uploaded and saved.")
+        elif not os.path.exists(user_profile_path):
             # No new file uploaded AND no file exists, so copy the default
-            default_resume_src = "data/resume_assets/base_resume.json"
-            if not os.path.exists(default_resume_src):
-                flash("Error: Default resume not found on server.")
+            default_profile_src = "data/resume_assets/user_profile.json"  # Updated default location
+            if not os.path.exists(default_profile_src):
+                flash("Error: Default user profile not found on server.")
                 return redirect(url_for('review_jobanalysis', session_id=session_id))
-            shutil.copy(default_resume_src, base_resume_path)
-            flash("ℹ️ Using default base resume.")
+            shutil.copy(default_profile_src, user_profile_path)
+            flash("ℹ️ Using default user profile.")
 
         # 2. Get the final list of keywords from the form
         final_keywords_str = request.form.get('final_keywords', '')
         keywords = [k.strip() for k in final_keywords_str.split(',') if k.strip()]
         
-        # 3. Run the tailoring service
+        # 3. Run the Resume Builder pipeline
         tailor_resume(
             session_path=session_path, 
-            base_resume_path=base_resume_path, 
+            user_profile_path=user_profile_path,  # Updated parameter name
             client=client, 
             model_name=CONFIG["openai_model"], 
             api_parameters=CONFIG["openai_parameters"],
@@ -246,25 +265,36 @@ def run_step3_tailoring(session_id):
         return redirect(url_for('review_tailoring', session_id=session_id))
         
     except Exception as e:
-        flash(f"An error occurred during resume tailoring: {e}")
+        flash(f"An error occurred during resume building: {e}")
         return redirect(url_for('review_jobanalysis', session_id=session_id))
 
 
 @app.route('/review/tailoring/<session_id>')
 def review_tailoring(session_id):
-    """Displays the tailored resume content for review."""
+    """Displays the built resume content for review. UPDATED labels for Resume Builder."""
     session_path = os.path.join(CONFIG["output_base_dir"], session_id)
     tailored_path = os.path.join(session_path, "tailored_resume_content.json")
-    job_analysis_path = os.path.join(session_path, "structured_job_data.json")
+    
+    # Try to load the ideal candidate profile, fall back to legacy job analysis
+    ideal_profile_path = os.path.join(session_path, "ideal_candidate_profile.json")
+    legacy_analysis_path = os.path.join(session_path, "structured_job_data.json")
     
     try:
         with open(tailored_path, "r", encoding="utf-8") as f:
             tailored_data = json.load(f)
             pretty_tailored_json = json.dumps(tailored_data, indent=4)
             
-        with open(job_analysis_path, "r", encoding="utf-8") as f:
-            job_data = json.load(f)
-            pretty_job_json = json.dumps(job_data, indent=4)
+        # Load analysis data (prefer new format)
+        if os.path.exists(ideal_profile_path):
+            with open(ideal_profile_path, "r", encoding="utf-8") as f:
+                analysis_data = json.load(f)
+        elif os.path.exists(legacy_analysis_path):
+            with open(legacy_analysis_path, "r", encoding="utf-8") as f:
+                analysis_data = json.load(f)
+        else:
+            analysis_data = {"error": "Analysis data not found"}
+            
+        pretty_job_json = json.dumps(analysis_data, indent=4)
         
         return render_template(
             'review_tailoring.html',
@@ -274,12 +304,45 @@ def review_tailoring(session_id):
             config=CONFIG
         )
     except FileNotFoundError:
-        flash("Error: Could not find the tailored resume data.")
+        flash("Error: Could not find the built resume data.")
         return redirect(url_for('home'))
+
+@app.route('/save/ideal_profile/<session_id>', methods=['POST'])
+def save_ideal_profile(session_id):
+    """Saves the edited ideal candidate profile JSON content."""
+    session_path = os.path.join(CONFIG["output_base_dir"], session_id)
+    json_path = os.path.join(session_path, "ideal_candidate_profile.json")
+    
+    try:
+        edited_content = request.form.get('ideal_profile_content', '').strip()
+        if not edited_content:
+            flash("Error: Cannot save empty content.")
+            return redirect(url_for('review_jobanalysis', session_id=session_id))
+        
+        # IMPORTANT: Validate that the string is valid JSON before saving
+        try:
+            parsed_json = json.loads(edited_content)
+            # Re-serialize with indentation for clean storage
+            with open(json_path, "w", encoding="utf-8") as f:
+                json.dump(parsed_json, f, indent=4)
+            flash("✅ Ideal candidate profile saved successfully!")
+        except json.JSONDecodeError:
+            flash("Error: Invalid JSON format. Please correct the syntax and try again.")
+
+    except Exception as e:
+        flash(f"Error saving changes: {e}")
+        
+    return redirect(url_for('review_jobanalysis', session_id=session_id))
+
+@app.route('/reset/ideal_profile/<session_id>', methods=['POST'])
+def reset_ideal_profile(session_id):
+    """Resets the ideal candidate profile by reloading the page."""
+    flash("🔄 Ideal candidate profile reset to saved version.")
+    return redirect(url_for('review_jobanalysis', session_id=session_id))
 
 @app.route('/save/json/<session_id>', methods=['POST'])
 def save_json(session_id):
-    """Saves the edited tailored resume JSON content."""
+    """Saves the edited built resume JSON content."""
     session_path = os.path.join(CONFIG["output_base_dir"], session_id)
     json_path = os.path.join(session_path, "tailored_resume_content.json")
     
@@ -312,17 +375,17 @@ def reset_json(session_id):
 
 @app.route('/run/final_steps/<session_id>', methods=['POST'])
 def run_final_steps(session_id):
-    """Generates the PDF and then runs the ATS validation score."""
+    """Generates the PDF and then runs the ATS validation score. UPDATED for Resume Builder."""
     session_path = os.path.join(CONFIG["output_base_dir"], session_id)
-    base_resume_path = os.path.join(session_path, "base_resume.json")
+    user_profile_path = os.path.join(session_path, "user_profile.json")  # Updated from base_resume.json
     
-    if not os.path.exists(base_resume_path):
-        flash("Error: Base resume not found for this session.")
+    if not os.path.exists(user_profile_path):
+        flash("Error: User profile not found for this session.")
         return redirect(url_for('review_jobanalysis', session_id=session_id))
     
     try:
         # Step 4: Generate PDF
-        generate_pdf(session_path, base_resume_path, CONFIG["pdf_config"])
+        generate_pdf(session_path, user_profile_path, CONFIG["pdf_config"])  # Updated parameter
         
         # Step 5: Run ATS Scorer
         score_resume(session_path, client, CONFIG["openai_model"])
@@ -378,7 +441,7 @@ def download_bundle(session_id):
     zip_path = os.path.join(session_path, zip_name)
 
     try:
-        # Create the zip file using our new utility function
+        # Create the zip file using our utility function
         created_zip_path = create_session_zip(session_path, zip_path)
         if not created_zip_path:
             flash("Error: Could not create session bundle, no files to zip.")

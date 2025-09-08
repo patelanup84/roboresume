@@ -1,0 +1,76 @@
+{
+    "summary": "Dynamic and results-driven consultant with a proven track record in data analysis and strategic insights, driving significant market share growth and operational efficiencies. Adept at leading high-impact projects and teams, with expertise in data-driven decision-making and advanced modeling techniques, complemented by strong communication and problem-solving skills. Holds extensive experience in guiding digital transformations and optimizing marketing performance, delivering actionable plans for C-suite clients.",
+    "work_experience": [
+        {
+            "company": "Function Consulting",
+            "position": "Founder & Principal Consultant",
+            "date": "2022 \u2013 Present",
+            "description": [
+                "Spearheaded a market entry strategy for a tech firm, achieving a 15% market share increase within a year by leveraging data analysis and strategic insights.",
+                "Engineered a proprietary data model that automated risk assessment, cutting manual analysis time by 75%, enhancing decision-making efficiency.",
+                "Guided a C-suite client through digital transformation, facilitating the successful adoption of a CRM platform, thereby improving client engagement and operational efficiency."
+            ]
+        },
+        {
+            "company": "WS Marketing Agency",
+            "position": "Director, Marketing Intelligence & Performance",
+            "date": "2020 \u2013 2022",
+            "description": [
+                "Pioneered a multi-touch attribution framework, elevating marketing ROI measurement by 40% through advanced data analysis and strategic implementation.",
+                "Led a team of 5 analysts, optimizing reporting efficiency by 30% via process automation, enhancing team productivity and data-driven decision-making."
+            ]
+        }
+    ],
+    "education": [
+        {
+            "school": "York University",
+            "degree": "MBA",
+            "field": "Marketing & Brand Management and Management Consulting",
+            "date": "2011 \u2013 2013",
+            "achievements": [
+                "Awarded the Seymour Schulich MBA Entrance Scholarship (1 of 500 applicants)"
+            ]
+        },
+        {
+            "school": "University of Calgary",
+            "degree": "B.Sc.",
+            "field": "Biological Sciences",
+            "date": "2003 \u2013 2007",
+            "achievements": [
+                "NSERC Undergraduate Student Research Award"
+            ]
+        }
+    ],
+    "skills": [
+        {
+            "category": "Technical Skills",
+            "entries": [
+                "Data analysis",
+                "Excel modeling",
+                "PowerPoint presentation",
+                "Project management",
+                "Python (Pandas, Scikit-learn)",
+                "SQL",
+                "Tableau"
+            ]
+        },
+        {
+            "category": "Soft Skills",
+            "entries": [
+                "Communication",
+                "Problem-solving",
+                "Resilience",
+                "Time management"
+            ]
+        },
+        {
+            "category": "Additional Skills",
+            "entries": [
+                "Research",
+                "Logical reasoning",
+                "Decision-making"
+            ]
+        }
+    ],
+    "target_role": "The ideal candidate should possess an advanced graduate degree or equivalent work experience, with strong organizational capabilities and the ability to work independently in a complex environment. They should be proficient in data-driven decision-making and capable of creating actionable plans and deliverables for high-impact clients."
+}

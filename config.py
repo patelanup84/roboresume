@@ -1,4 +1,4 @@
-# Configuration constants (EXTRACTED FROM jobbot app.py)
+# Configuration constants
 
 CONFIG = {
     "output_base_dir": "./data/jobs",
@@ -14,22 +14,51 @@ CONFIG = {
     }
 }
 
+# --------------------------------------------------------------------------
+# Resume Builder Prompts
+# --------------------------------------------------------------------------
+
+JOB_ANALYSIS_PROMPT = (
+    "You are an expert HR analyst. Analyze the provided job description and extract a profile of the ideal candidate. "
+    "Focus on identifying the most critical skills and experiences required for success in this role. "
+    "Your output must be a structured JSON object that conforms to the `IdealCandidateProfile` model."
+)
+
+WORK_EXPERIENCE_PROMPT = (
+    "You are an expert resume writer building the 'Work Experience' section. Your task is to intelligently select and rewrite achievements from the user's comprehensive profile to create a highly targeted resume section.\n\n"
+    "**Process:**\n"
+    "1.  **Review the `IdealCandidateProfile`**: Understand the key technical and soft skills the employer is looking for.\n"
+    "2.  **Scan the `UserProfile`**: Look through the user's entire work history.\n"
+    "3.  **Select Achievements**: For each job, select the 2-3 achievements whose `tags` most closely align with the skills in the `IdealCandidateProfile`. Prioritize achievements with quantifiable results.\n"
+    "4.  **Rewrite Selected Achievements**: Rewrite each selected achievement to be more impactful. Start with a strong action verb, use the STAR method, and subtly weave in keywords from the `IdealCandidateProfile`. Ensure each bullet is a dense, 2-line description (approx. 30-40 words).\n\n"
+    "Your final output must be a JSON object containing only the `work_experience` list, conforming to the provided model."
+)
+
+SKILLS_PROMPT = (
+    "You are a resume writer building the 'Skills' section. Your task is to select and organize the most relevant skills from the user's profile.\n\n"
+    "**Process:**\n"
+    "1.  **Review the `IdealCandidateProfile`**: Identify the top technical skills required for the job.\n"
+    "2.  **Scan the `UserProfile`**: Look at all the skills the user possesses.\n"
+    "3.  **Select & Organize**: Create a `skills` section that prioritizes the skills listed in the `IdealCandidateProfile`. Group them into logical categories.\n\n"
+    "Your output must be a JSON object containing the `skills` list."
+)
+
+SUMMARY_PROMPT = (
+    "You are a resume writer crafting a professional summary. Your task is to synthesize the *already built* work experience and skills sections into a powerful, concise summary.\n\n"
+    "**Process:**\n"
+    "1.  **Review the `IdealCandidateProfile`**: Understand the core requirements of the role.\n"
+    "2.  **Review the `BuiltResumeSections`**: Analyze the most important achievements and skills that were selected for the resume.\n"
+    "3.  **Write Summary**: Craft a 2-3 sentence summary that highlights the candidate's strongest qualifications as reflected in the built sections, mirroring the language of the job description.\n\n"
+    "Your output must be a JSON object containing only the `summary` string."
+)
+
+# --------------------------------------------------------------------------
+# Legacy Prompts (Keep for now, may be used in job analysis step)
+# --------------------------------------------------------------------------
+
 ANALYSIS_PROMPT_TEXT = (
     "You are an AI assistant specializing in structured data extraction from job listings. "
     "For missing information, return null. Summarize key duties as bullet points in 'description'."
-)
-
-TAILORING_PROMPT_TEXT = (
-    "You are an expert resume writer. Your task is to transform the provided base resume to be highly targeted for the given job description. "
-    "Follow these rules precisely:\n\n"
-    "1.  **Rephrase Bullet Points:** Rewrite the work experience bullet points to align with the job's keywords and requirements. Use the STAR (Situation, Task, Action, Result) framework where possible to demonstrate impact.\n"
-    "2.  **Do Not Invent:** You must not invent new experiences, skills, or projects. Only rephrase and tailor existing content from the base resume.\n"
-    "3.  **Bullet Point Count Rules (Strict):** Adhere to the following maximum number of bullet points for each work experience entry:\n"
-    "    - For the role 'Founder & Principal Consultant' at 'Function Consulting': a maximum of 4 bullet points.\n"
-    "    - For the role 'Director, Marketing Intelligence & Performance' at 'WS Marketing Agency': a maximum of 3 bullet points.\n"
-    "    - For ALL OTHER roles and companies: a maximum of 2 bullet points.\n\n"
-    "4.  **Target Role Integration:** Ensure the summary and work experience descriptions align with the target role from the job listing.\n"
-    "5.  **Maintain Accuracy:** Do not exaggerate or misrepresent any information. Stay truthful to the original content while optimizing for relevance."
 )
 
 ATS_PROMPT_TEXT = (
@@ -40,4 +69,3 @@ ATS_PROMPT_TEXT = (
     "List the top 5-7 matching keywords and the top 5-7 most important missing keywords. "
     "Finally, provide a brief summary explaining your reasoning for the score."
 )
-

@@ -1,0 +1,78 @@
+{
+    "_comment": "This instructional template is designed for a top-tier consulting role. The AI will populate the fields that contain an '{Instruction: ...}' string.",
+    "summary": "{Instruction: Write a powerful 2-3 sentence summary for a top-tier consulting role. Directly mirror the language and keywords from the job description and showcase a blend of the 4 key consulting traits: Problem-solving, Personal impact, Entrepreneurial drive, and Leadership. Keep it concise and under 50 words.}",
+    "work_experience": [
+        {
+            "_comment": "For the most recent and relevant role, showcase a mix of all key traits.",
+            "company": "Function Consulting",
+            "position": "Founder & Principal Consultant",
+            "date": "2022 – Present",
+            "description": [
+                {
+                    "trait": "Entrepreneurial Drive & Leadership",
+                    "instruction": "{Instruction: Using the 'Accomplished [X] as measured by [Y] by doing [Z]' formula, rewrite the corresponding achievement from the base resume to highlight leadership and initiative in a business context. Quantify the result. Max 25 words.}"
+                },
+                {
+                    "trait": "Problem-Solving",
+                    "instruction": "{Instruction: Using the 'Accomplished [X] as measured by [Y] by doing [Z]' formula, rewrite the corresponding achievement from the base resume to detail a complex analytical success (e.g., building a data model). Emphasize efficiency or accuracy gains. Max 25 words.}"
+                },
+                {
+                    "trait": "Personal Impact",
+                    "instruction": "{Instruction: Using the 'Accomplished [X] as measured by [Y] by doing [Z]' formula, rewrite the corresponding achievement from the base resume to focus on client-facing work where your insights directly influenced a senior stakeholder's decision. Max 25 words.}"
+                }
+            ]
+        },
+        {
+            "_comment": "For other roles, focus on 1-2 key traits that are most relevant.",
+            "company": "WS Marketing Agency",
+            "position": "Director, Marketing Intelligence & Performance",
+            "date": "2020 – 2022",
+            "description": [
+                {
+                    "trait": "Problem-Solving & Leadership",
+                    "instruction": "{Instruction: Using the 'Accomplished [X] as measured by [Y] by doing [Z]' formula, rewrite the corresponding achievement from the base resume to highlight developing a complex, scalable framework that improved team performance. Max 25 words.}"
+                },
+                {
+                    "trait": "Personal Impact",
+                    "instruction": "{Instruction: Using the 'Accomplished [X] as measured by [Y] by doing [Z]' formula, rewrite the corresponding achievement from the base resume to describe a complex analysis you conducted that led to a strategic pivot or optimization for a client. Max 25 words.}"
+                }
+            ]
+        }
+    ],
+    "education": [
+        {
+            "school": "York University",
+            "degree": "MBA",
+            "field": "Marketing & Brand Management",
+            "date": "2011 – 2013",
+            "awards": "{Instruction: Based on the base resume data, detail the competitive award, specifying the level of competition (e.g., 'Awarded for top 5% of class' or '1 of 500 applicants'). If none, replace this with a summary of relevant coursework.}"
+        }
+    ],
+    "extracurricular_achievements": [
+        {
+            "_comment": "This section is crucial for showing leadership and drive outside of work.",
+            "organization": "{Instruction: From the base resume data, fill in the name of the extracurricular organization.}",
+            "role": "{Instruction: From the base resume data, fill in the role held.}",
+            "date": "{Instruction: From the base resume data, fill in the dates.}",
+            "description": [
+                "{Instruction: Trait: Leadership & Entrepreneurial Drive. Using the 'Accomplished [X]...' formula, rewrite the description from the base resume to showcase leadership, initiative, or teamwork in a non-professional context. Quantify the impact (e.g., number of people led, funds raised).}"
+            ]
+        }
+    ],
+    "skills": {
+        "_comment": "This section should be concise and easy for a recruiter to scan.",
+        "technical": "{Instruction: From the base resume data, list the most relevant technical skills. Prioritize skills mentioned in the job description. Example: Python (Pandas), SQL, Tableau.}",
+        "languages": "{Instruction: From the base resume data, list languages and proficiency levels. Example: English (Native), French (Fluent).}",
+        "interests": "{Instruction: From the base resume data, list 2-3 unique, specific interests that are good conversation starters and hint at positive traits (e.g., 'Competitive Marathon Runner' shows discipline). Avoid generic interests.}"
+    },
+    "personal_information": {
+        "_comment": "This data will be merged from your base resume data file, not generated by the AI.",
+        "first_name": "",
+        "last_name": "",
+        "email": "",
+        "phone_number": "",
+        "location": "",
+        "linkedin_url": "",
+        "github_url": ""
+    }
+}

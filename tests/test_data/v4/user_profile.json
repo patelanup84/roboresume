@@ -1,0 +1,173 @@
+{
+    "_comment": "This is a comprehensive user profile, serving as a master database of all career-related information. The 'tags' are crucial for the AI to intelligently select the most relevant achievements.",
+    "personal_info": {
+        "first_name": "Anup",
+        "last_name": "Patel",
+        "email": "patel.anup@outlook.com",
+        "phone_number": "403-402-6023",
+        "location": "Calgary, AB",
+        "linkedin_url": "https://www.linkedin.com/in/patelanup",
+        "github_url": "https://github.com/patelanup84"
+    },
+    "professional_summary": [
+        {
+            "_comment": "A general, all-purpose summary.",
+            "version": "default",
+            "text": "Dynamic consultant with 8+ years of experience in marketing strategy, data intelligence, and digital transformation. Proven ability to translate complex data into actionable business insights and lead cross-functional teams to drive market growth."
+        },
+        {
+            "_comment": "A summary more focused on technical skills.",
+            "version": "technical",
+            "text": "Data-driven strategist with deep expertise in Python (Pandas, Scikit-learn), SQL, and multi-touch attribution modeling. Passionate about building automated systems that enhance marketing ROI and operational efficiency."
+        }
+    ],
+    "work_experience": [
+        {
+            "company": "Function Consulting",
+            "position": "Founder & Principal Consultant",
+            "date": "2022 – Present",
+            "location": "Calgary, AB",
+            "achievements": [
+                {
+                    "text": "Led a market entry strategy project for a tech firm, resulting in a 15% market share gain within the first year.",
+                    "tags": [
+                        "leadership",
+                        "strategy",
+                        "market-analysis",
+                        "client-facing",
+                        "consulting"
+                    ]
+                },
+                {
+                    "text": "Developed a proprietary data model that automated risk assessment, reducing manual analysis time by 75%.",
+                    "tags": [
+                        "problem-solving",
+                        "python",
+                        "data-modeling",
+                        "automation",
+                        "efficiency"
+                    ]
+                },
+                {
+                    "text": "Advised a C-suite client on a digital transformation, leading to the successful adoption of a new CRM platform.",
+                    "tags": [
+                        "personal-impact",
+                        "client-advisory",
+                        "c-suite",
+                        "digital-transformation",
+                        "strategy"
+                    ]
+                }
+            ]
+        },
+        {
+            "company": "WS Marketing Agency",
+            "position": "Director, Marketing Intelligence & Performance",
+            "date": "2020 – 2022",
+            "location": "Calgary, AB",
+            "achievements": [
+                {
+                    "text": "Designed and implemented a multi-touch attribution framework that improved marketing ROI measurement by 40%.",
+                    "tags": [
+                        "problem-solving",
+                        "leadership",
+                        "data-analysis",
+                        "marketing-roi",
+                        "framework-design"
+                    ]
+                },
+                {
+                    "text": "Managed a team of 5 analysts, improving reporting efficiency by 30% through process automation.",
+                    "tags": [
+                        "leadership",
+                        "team-management",
+                        "automation",
+                        "efficiency"
+                    ]
+                }
+            ]
+        }
+    ],
+    "projects": [
+        {
+            "title": "Customer Segmentation Analysis Tool",
+            "date": "2021",
+            "description": "A self-initiated project to build a Python-based tool for clustering customers based on purchasing behavior.",
+            "achievements": [
+                {
+                    "text": "Engineered a K-Means clustering algorithm that identified three previously unknown high-value customer segments.",
+                    "tags": [
+                        "python",
+                        "scikit-learn",
+                        "data-analysis",
+                        "problem-solving",
+                        "project"
+                    ]
+                },
+                {
+                    "text": "Presented the findings to the executive team, which led to two new targeted marketing campaigns.",
+                    "tags": [
+                        "personal-impact",
+                        "presentation",
+                        "strategy",
+                        "project"
+                    ]
+                }
+            ]
+        }
+    ],
+    "education": [
+        {
+            "school": "York University",
+            "degree": "MBA",
+            "field": "Marketing & Brand Management and Management Consulting",
+            "date": "2011 – 2013",
+            "achievements": [
+                "Awarded the Seymour Schulich MBA Entrance Scholarship (1 of 500 applicants)"
+            ]
+        },
+        {
+            "school": "University of Calgary",
+            "degree": "B.Sc.",
+            "field": "Biological Sciences",
+            "date": "2003 – 2007",
+            "achievements": [
+                "NSERC Undergraduate Student Research Award"
+            ]
+        }
+    ],
+    "skills": [
+        {
+            "category": "Technical Skills",
+            "items": [
+                "Python (Pandas, Scikit-learn)",
+                "SQL",
+                "Tableau",
+                "Google Analytics",
+                "dbt",
+                "Google Ads",
+                "Meta Ads"
+            ]
+        },
+        {
+            "category": "Languages",
+            "items": [
+                "English (Native)",
+                "French (Conversational)"
+            ]
+        }
+    ],
+    "extracurriculars": [
+        {
+            "organization": "Calgary Youth Mentorship Program",
+            "role": "Volunteer Mentor",
+            "date": "2022-Present",
+            "description": "Led weekly workshops for 20+ underprivileged teenagers on topics of financial literacy and leadership skills.",
+            "tags": [
+                "leadership",
+                "mentorship",
+                "community"
+            ]
+        }
+    ]
+}

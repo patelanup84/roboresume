@@ -1,0 +1,78 @@
+{
+    "first_name": "Anup",
+    "last_name": "Patel",
+    "email": "patel.anup@outlook.com",
+    "phone_number": "403-402-6023",
+    "location": "Calgary, AB",
+    "linkedin_url": "https://www.linkedin.com/in/patelanup",
+    "github_url": "https://github.com/patelanup84",
+    "work_experience": [
+        {
+            "company": "Function Consulting",
+            "position": "Founder & Principal Consultant",
+            "date": "2022 – Present",
+            "achievements": [
+                "Led a market entry strategy project for a tech firm, resulting in a 15% market share gain within the first year.",
+                "Developed a proprietary data model that automated risk assessment, reducing manual analysis time by 75%.",
+                "Advised a C-suite client on a digital transformation, leading to the successful adoption of a new CRM platform."
+            ]
+        },
+        {
+            "company": "Mount Royal University",
+            "position": "Strategic Marketing Lead",
+            "date": "2023 – 2024",
+            "achievements": [
+                "Launched a new continuing education program that exceeded enrollment targets by 25% in the first semester.",
+                "Used market research and statistical analysis to identify three new target audience segments for university programs."
+            ]
+        },
+        {
+            "company": "WS Marketing Agency",
+            "position": "Director, Marketing Intelligence & Performance",
+            "date": "2020 – 2022",
+            "achievements": [
+                "Designed and implemented a multi-touch attribution framework that improved marketing ROI measurement by 40%.",
+                "Managed a team of 5 analysts, improving reporting efficiency by 30% through process automation.",
+                "Conducted a deep-dive analysis of customer lifetime value, which informed a strategic shift to high-value customer acquisition."
+            ]
+        },
+        {
+            "company": "WS Marketing Agency",
+            "position": "Marketing Strategist",
+            "date": "2017 – 2020",
+            "achievements": [
+                "Built and maintained ETL pipelines for marketing data, enabling real-time performance tracking.",
+                "Created and presented data dashboards to C-suite executives, translating complex metrics into actionable business insights."
+            ]
+        }
+    ],
+    "education": [
+        {
+            "school": "York University",
+            "degree": "MBA",
+            "field": "Marketing & Brand Management",
+            "date": "2011 – 2013",
+            "awards": "Awarded the Seymour Schulich MBA Entrance Scholarship (1 of 500 applicants)."
+        },
+        {
+            "school": "University of Calgary",
+            "degree": "B.Sc.",
+            "field": "Biological Sciences",
+            "date": "2003 – 2007",
+            "awards": "NSERC Undergraduate Student Research Award."
+        }
+    ],
+    "extracurricular_achievements": [
+        {
+            "organization": "Calgary Youth Mentorship Program",
+            "role": "Volunteer Mentor",
+            "date": "2022-Present",
+            "description": "Led weekly workshops for 20+ underprivileged teenagers on topics of financial literacy and leadership skills."
+        }
+    ],
+    "skills": {
+        "languages": "English (Native), French (Conversational)",
+        "technical": "Python (Pandas, Scikit-learn), SQL, Tableau, Google Analytics, dbt, Google Ads, Meta Ads",
+        "interests": "Competitive Marathon Runner, Restoring Vintage Motorcycles"
+    }
+}

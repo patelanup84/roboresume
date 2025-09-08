@@ -1,6 +1,6 @@
 """
-Resume tailoring service - handles resume customization
-EXTRACTED FROM jobbot resume_pipeline.py (step 3)
+Resume building service - handles intelligent resume construction from user profile
+COMPLETELY REWRITTEN for Resume Builder architecture
 """
 
 import os
@@ -9,114 +9,200 @@ from typing import Dict, Any, Optional, Tuple, List
 from openai import OpenAI
 
 # Local imports
-from models import JobListing, TailoredResumeContent
-from config import TAILORING_PROMPT_TEXT
+from models import IdealCandidateProfile, GeneratedResume, GeneratedWorkExperience, GeneratedSkill
+from config import WORK_EXPERIENCE_PROMPT, SKILLS_PROMPT, SUMMARY_PROMPT
 
 
-def tailor_resume(session_path: str, base_resume_path: str, client: OpenAI, model_name: str, api_parameters: dict, keywords: List[str]) -> str:
+def tailor_resume(session_path: str, user_profile_path: str, client: OpenAI, model_name: str, api_parameters: dict, keywords: List[str] = None) -> str:
     """
-    Reads job data, tailors the resume, and saves it as tailored_resume_content.json.
-    EXTRACTED FROM jobbot resume_pipeline.py step_3_tailor_resume
+    Main entry point - orchestrates the 4-step Resume Builder pipeline.
+    REWRITTEN for Resume Builder architecture.
+    
+    Args:
+        session_path: Path to session directory
+        user_profile_path: Path to user_profile.json file
+        client: OpenAI client
+        model_name: AI model to use
+        api_parameters: API parameters for OpenAI calls
+        keywords: Additional keywords to focus on (optional)
+    
+    Returns:
+        Path to generated resume content file
     """
-    print("\n=== Step 3: Tailoring Resume ===")
-    job_data_path = os.path.join(session_path, "structured_job_data.json")
-    with open(job_data_path, "r", encoding="utf-8") as f:
-        job_data = JobListing.model_validate_json(f.read())
-
-    tailoring_result, _ = _run_resume_tailoring(job_data, base_resume_path, client, model_name, api_parameters, keywords)
-    if not tailoring_result:
-        raise ValueError("Failed to tailor resume.")
-
+    print("\n=== Resume Builder Pipeline ===")
+    
+    # Load the ideal candidate profile from job analysis
+    ideal_profile_path = os.path.join(session_path, "ideal_candidate_profile.json")
+    with open(ideal_profile_path, "r", encoding="utf-8") as f:
+        ideal_profile = IdealCandidateProfile.model_validate_json(f.read())
+    
+    # Load user profile
+    with open(user_profile_path, "r", encoding="utf-8") as f:
+        user_profile = json.load(f)
+    
+    # Load original job description for context
+    job_posting_path = os.path.join(session_path, "job_posting.md")
+    with open(job_posting_path, "r", encoding="utf-8") as f:
+        job_description = f.read()
+    
+    # Execute the 4-step pipeline
+    print("🔄 Step 1: Building Work Experience...")
+    work_experience = _build_work_experience(user_profile, ideal_profile, job_description, client, model_name, api_parameters, keywords)
+    
+    print("🔄 Step 2: Building Skills Section...")
+    skills = _build_skills(user_profile, ideal_profile, client, model_name, api_parameters)
+    
+    print("🔄 Step 3: Writing Summary...")
+    summary = _build_summary(work_experience, skills, ideal_profile, client, model_name, api_parameters)
+    
+    print("🔄 Step 4: Assembling Final Resume...")
+    # Assemble the final resume content
+    final_resume_content = {
+        "summary": summary,
+        "work_experience": [exp.model_dump() for exp in work_experience],
+        "education": user_profile.get("education", []),  # Pull education directly from profile
+        "skills": [skill.model_dump() for skill in skills],
+        "projects": user_profile.get("projects", []),  # Pull projects directly from profile
+        "target_role": ideal_profile.experience_summary
+    }
+    
+    # Save the generated content
     output_path = os.path.join(session_path, "tailored_resume_content.json")
     with open(output_path, "w", encoding="utf-8") as f:
-        f.write(tailoring_result.model_dump_json(indent=4))
-
-    print(f"✏️ Tailored resume content saved to: {output_path}")
+        json.dump(final_resume_content, f, indent=4)
+    
+    print(f"✅ Resume Builder Pipeline Complete! Saved to: {output_path}")
     return output_path
 
 
 # ============================================================================
-# HELPER FUNCTIONS (EXTRACTED FROM jobbot resume_pipeline.py)
+# RESUME BUILDER PIPELINE STEPS
 # ============================================================================
 
-def _run_resume_tailoring(job_data: JobListing, base_resume_path: str, client: OpenAI, model_name: str, api_parameters: dict, keywords: List[str]) -> Tuple[Optional[TailoredResumeContent], Optional[str]]:
+def _build_work_experience(user_profile: dict, ideal_profile: IdealCandidateProfile, job_description: str, client: OpenAI, model_name: str, api_parameters: dict, keywords: List[str] = None) -> List[GeneratedWorkExperience]:
     """
-    Runs AI-powered resume tailoring.
-    EXTRACTED FROM jobbot resume_pipeline.py
+    Step 1: Intelligently selects and rewrites work experience from user profile.
     """
     try:
-        print("🤖 Running AI-powered resume tailoring...")
-        
-        # Load base resume
-        with open(base_resume_path, "r", encoding="utf-8") as f:
-            base_resume = json.load(f)
-        
-        # Dynamically inject keywords into the prompt if they exist
-        keyword_injection_prompt = ""
+        # Prepare keyword injection if keywords are provided
+        keyword_injection = ""
         if keywords:
-            print(f"Injecting keywords into prompt: {keywords}")
             keyword_list = ", ".join(keywords)
-            keyword_injection_prompt = f"\n\n**Keyword Focus:** You MUST strategically incorporate the following keywords, which were extracted from the job description, into the rewritten bullet points: {keyword_list}"
-
-        # Prepare the prompt
-        job_description = _format_job_data_for_prompt(job_data)
-        base_resume_text = json.dumps(base_resume, indent=2)
+            keyword_injection = f"\n\n**Additional Keywords to Prioritize:** {keyword_list}"
         
-        full_prompt = f"""
-{TAILORING_PROMPT_TEXT}{keyword_injection_prompt}
-
-**Job Description:**
-{job_description}
-
-**Base Resume (JSON):**
-{base_resume_text}
-
-Please provide a tailored resume in the exact same JSON structure, optimized for this specific job.
-"""
+        # Prepare the comprehensive prompt
+        user_prompt = (
+            f"**Ideal Candidate Profile:**\n{ideal_profile.model_dump_json(indent=2)}\n\n"
+            f"**User's Full Profile (for achievement selection):**\n{json.dumps(user_profile, indent=2)}\n\n"
+            f"**Original Job Description (for keyword alignment):**\n{job_description}{keyword_injection}"
+        )
         
         response = client.chat.completions.create(
             model=model_name,
-            response_model=TailoredResumeContent,
+            response_model=GeneratedResume,  # Use full resume model to get work_experience
             messages=[
-                {
-                    "role": "system", 
-                    "content": "You are an expert resume writer. Transform the provided resume to target the specific job while maintaining accuracy."
-                },
-                {
-                    "role": "user", 
-                    "content": full_prompt
-                }
+                {"role": "system", "content": WORK_EXPERIENCE_PROMPT},
+                {"role": "user", "content": user_prompt}
             ],
             **api_parameters
         )
         
-        print("✅ Resume tailoring completed successfully.")
-        return response, None
+        return response.work_experience
         
     except Exception as e:
-        error_msg = f"❌ Error during resume tailoring: {str(e)}"
-        print(error_msg)
-        return None, error_msg
+        print(f"❌ Error building work experience: {str(e)}")
+        raise
 
 
-def _format_job_data_for_prompt(job_data: JobListing) -> str:
+def _build_skills(user_profile: dict, ideal_profile: IdealCandidateProfile, client: OpenAI, model_name: str, api_parameters: dict) -> List[GeneratedSkill]:
     """
-    Formats job data for AI prompt.
-    EXTRACTED FROM jobbot resume_pipeline.py
+    Step 2: Builds the skills section based on user profile and ideal candidate requirements.
     """
-    job_info = []
+    try:
+        user_prompt = (
+            f"**Ideal Candidate Profile:**\n{ideal_profile.model_dump_json(indent=2)}\n\n"
+            f"**User's Full Profile (for skill selection):**\n{json.dumps(user_profile, indent=2)}"
+        )
+        
+        response = client.chat.completions.create(
+            model=model_name,
+            response_model=GeneratedResume,  # Use full resume model to get skills
+            messages=[
+                {"role": "system", "content": SKILLS_PROMPT},
+                {"role": "user", "content": user_prompt}
+            ],
+            **api_parameters
+        )
+        
+        return response.skills
+        
+    except Exception as e:
+        print(f"❌ Error building skills: {str(e)}")
+        raise
+
+
+def _build_summary(work_experience: List[GeneratedWorkExperience], skills: List[GeneratedSkill], ideal_profile: IdealCandidateProfile, client: OpenAI, model_name: str, api_parameters: dict) -> str:
+    """
+    Step 3: Writes the professional summary based on the already-built sections.
+    """
+    try:
+        # Show the AI the content we've already decided to include in the resume
+        built_sections = {
+            "work_experience": [exp.model_dump() for exp in work_experience],
+            "skills": [skill.model_dump() for skill in skills]
+        }
+        
+        user_prompt = (
+            f"**Ideal Candidate Profile:**\n{ideal_profile.model_dump_json(indent=2)}\n\n"
+            f"**Built Resume Sections (for synthesis):**\n{json.dumps(built_sections, indent=2)}"
+        )
+        
+        response = client.chat.completions.create(
+            model=model_name,
+            response_model=GeneratedResume,  # Use full resume model to get summary
+            messages=[
+                {"role": "system", "content": SUMMARY_PROMPT},
+                {"role": "user", "content": user_prompt}
+            ],
+            **api_parameters
+        )
+        
+        return response.summary
+        
+    except Exception as e:
+        print(f"❌ Error building summary: {str(e)}")
+        raise
+
+
+# ============================================================================
+# UTILITY FUNCTIONS
+# ============================================================================
+
+def _calculate_tag_relevance_score(achievement_tags: List[str], ideal_skills: List[str]) -> float:
+    """
+    Calculates how well an achievement's tags align with the ideal candidate profile.
+    This can be used for more sophisticated achievement selection logic in the future.
+    """
+    if not achievement_tags or not ideal_skills:
+        return 0.0
     
-    if job_data.company_name:
-        job_info.append(f"Company: {job_data.company_name}")
-    if job_data.position_title:
-        job_info.append(f"Position: {job_data.position_title}")
-    if job_data.location:
-        job_info.append(f"Location: {job_data.location}")
-    if job_data.description:
-        job_info.append(f"Description: {job_data.description}")
-    # Keywords are now handled separately, so we can remove them from here to avoid redundancy
-    # if job_data.keywords:
-    #     job_info.append(f"Key Skills/Keywords: {', '.join(job_data.keywords)}")
+    # Convert to lowercase for case-insensitive matching
+    achievement_tags_lower = [tag.lower() for tag in achievement_tags]
+    ideal_skills_lower = [skill.lower() for skill in ideal_skills]
     
-    return "\n".join(job_info)
+    # Count matches
+    matches = sum(1 for tag in achievement_tags_lower if any(skill in tag or tag in skill for skill in ideal_skills_lower))
+    
+    # Return score as percentage
+    return matches / len(achievement_tags) if achievement_tags else 0.0
+
+
+def _extract_keywords_from_profile(ideal_profile: IdealCandidateProfile) -> List[str]:
+    """
+    Extracts all relevant keywords from the ideal candidate profile.
+    """
+    keywords = []
+    keywords.extend(ideal_profile.top_technical_skills)
+    keywords.extend(ideal_profile.top_soft_skills)
+    return keywords
 

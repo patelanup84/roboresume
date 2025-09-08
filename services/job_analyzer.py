@@ -1,6 +1,6 @@
 """
 Job analysis service - handles content fetching and job posting analysis
-EXTRACTED FROM jobbot resume_pipeline.py (steps 1 & 2)
+Updated for Resume Builder architecture
 """
 
 import os
@@ -14,14 +14,14 @@ from crawl4ai import AsyncWebCrawler, BrowserConfig, CrawlerRunConfig
 from crawl4ai.markdown_generation_strategy import DefaultMarkdownGenerator
 
 # Local imports
-from models import JobListing
-from config import ANALYSIS_PROMPT_TEXT
+from models import JobListing, IdealCandidateProfile
+from config import ANALYSIS_PROMPT_TEXT, JOB_ANALYSIS_PROMPT
 
 
 async def fetch_job_content(source_config: dict, session_path: str) -> str:
     """
     Fetches job content and saves it as job_posting.md in the session folder.
-    EXTRACTED FROM jobbot resume_pipeline.py step_1_get_content
+    UNCHANGED - works with both old and new architecture
     """
     print("\n=== Step 1: Loading Job Posting ===")
     content = await _get_job_content_from_source(source_config)
@@ -38,15 +38,39 @@ async def fetch_job_content(source_config: dict, session_path: str) -> str:
 
 def analyze_job_posting(session_path: str, client: OpenAI, model_name: str) -> str:
     """
-    Reads job_posting.md, analyzes it, and saves the result as structured_job_data.json.
-    EXTRACTED FROM jobbot resume_pipeline.py step_2_analyze_job
+    Reads job_posting.md, analyzes it, and saves the result as ideal_candidate_profile.json.
+    UPDATED for Resume Builder - creates IdealCandidateProfile instead of JobListing
     """
-    print("\n=== Step 2: Analyzing Job Posting ===")
+    print("\n=== Step 2: Analyzing Job Posting (Resume Builder) ===")
     markdown_path = os.path.join(session_path, "job_posting.md")
     with open(markdown_path, "r", encoding="utf-8") as f:
         content = f.read()
 
-    structured_data = _run_job_analysis(content, client, model_name)
+    # Create the IdealCandidateProfile using new analysis
+    ideal_profile = _run_job_analysis_for_builder(content, client, model_name)
+    if not ideal_profile:
+        raise ValueError("Failed to analyze job posting for resume builder.")
+
+    # Save as ideal_candidate_profile.json
+    output_path = os.path.join(session_path, "ideal_candidate_profile.json")
+    with open(output_path, "w", encoding="utf-8") as f:
+        f.write(ideal_profile.model_dump_json(indent=4))
+    
+    print(f"🎯 Ideal candidate profile saved to: {output_path}")
+    return output_path
+
+
+def analyze_job_posting_legacy(session_path: str, client: OpenAI, model_name: str) -> str:
+    """
+    Legacy function - creates JobListing for backward compatibility if needed.
+    Reads job_posting.md, analyzes it, and saves the result as structured_job_data.json.
+    """
+    print("\n=== Step 2: Analyzing Job Posting (Legacy) ===")
+    markdown_path = os.path.join(session_path, "job_posting.md")
+    with open(markdown_path, "r", encoding="utf-8") as f:
+        content = f.read()
+
+    structured_data = _run_job_analysis_legacy(content, client, model_name)
     if not structured_data:
         raise ValueError("Failed to analyze job posting.")
 
@@ -59,13 +83,13 @@ def analyze_job_posting(session_path: str, client: OpenAI, model_name: str) -> s
 
 
 # ============================================================================
-# HELPER FUNCTIONS (EXTRACTED FROM jobbot resume_pipeline.py)
+# HELPER FUNCTIONS
 # ============================================================================
 
 async def _get_job_content_from_source(source_config: dict) -> Optional[str]:
     """
     Retrieves job content from URL or string source.
-    EXTRACTED FROM jobbot resume_pipeline.py
+    UNCHANGED - works with both architectures
     """
     source_type = source_config.get("type")
     
@@ -91,7 +115,7 @@ async def _get_job_content_from_source(source_config: dict) -> Optional[str]:
 async def _scrape_job_posting_from_url(url: str) -> Optional[str]:
     """
     Scrapes job posting content from a URL using Crawl4AI.
-    EXTRACTED FROM jobbot resume_pipeline.py
+    UNCHANGED - works with both architectures
     """
     try:
         print(f"🌐 Scraping job posting from: {url}")
@@ -123,13 +147,44 @@ async def _scrape_job_posting_from_url(url: str) -> Optional[str]:
         return None
 
 
-def _run_job_analysis(content: str, client: OpenAI, model_name: str) -> Optional[JobListing]:
+def _run_job_analysis_for_builder(content: str, client: OpenAI, model_name: str) -> Optional[IdealCandidateProfile]:
     """
-    Runs AI analysis on job posting content.
-    EXTRACTED FROM jobbot resume_pipeline.py
+    NEW: Runs AI analysis to create an IdealCandidateProfile for the Resume Builder.
     """
     try:
-        print("🤖 Running AI analysis on job posting...")
+        print("🤖 Running AI analysis for Resume Builder...")
+        
+        response = client.chat.completions.create(
+            model=model_name,
+            response_model=IdealCandidateProfile,
+            messages=[
+                {
+                    "role": "system", 
+                    "content": JOB_ANALYSIS_PROMPT
+                },
+                {
+                    "role": "user", 
+                    "content": content
+                }
+            ],
+            max_tokens=4096,
+            temperature=0.2
+        )
+        
+        print("✅ Job analysis for Resume Builder completed successfully.")
+        return response
+        
+    except Exception as e:
+        print(f"❌ Error during job analysis: {str(e)}")
+        return None
+
+
+def _run_job_analysis_legacy(content: str, client: OpenAI, model_name: str) -> Optional[JobListing]:
+    """
+    Legacy AI analysis - creates JobListing for backward compatibility.
+    """
+    try:
+        print("🤖 Running legacy AI analysis...")
         
         response = client.chat.completions.create(
             model=model_name,
@@ -148,10 +203,9 @@ def _run_job_analysis(content: str, client: OpenAI, model_name: str) -> Optional
             temperature=0.2
         )
         
-        print("✅ Job analysis completed successfully.")
+        print("✅ Legacy job analysis completed successfully.")
         return response
         
     except Exception as e:
-        print(f"❌ Error during job analysis: {str(e)}")
+        print(f"❌ Error during legacy job analysis: {str(e)}")
         return None
-
